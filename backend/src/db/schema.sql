@@ -1,6 +1,3 @@
--- Enable PostGIS extension
-CREATE EXTENSION IF NOT EXISTS postgis;
-
 -- Data Centers table
 CREATE TABLE IF NOT EXISTS data_centers (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -9,7 +6,6 @@ CREATE TABLE IF NOT EXISTS data_centers (
     address TEXT NOT NULL,
     city VARCHAR(100) NOT NULL,
     country VARCHAR(100) NOT NULL,
-    location GEOGRAPHY(POINT, 4326) NOT NULL,
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
     status VARCHAR(50) NOT NULL CHECK (status IN ('operational', 'planned', 'under-construction', 'decommissioned')),
@@ -51,7 +47,6 @@ CREATE TABLE IF NOT EXISTS scrape_logs (
 );
 
 -- Indexes for performance
-CREATE INDEX IF NOT EXISTS idx_data_centers_location ON data_centers USING GIST(location);
 CREATE INDEX IF NOT EXISTS idx_data_centers_country ON data_centers(country);
 CREATE INDEX IF NOT EXISTS idx_data_centers_status ON data_centers(status);
 CREATE INDEX IF NOT EXISTS idx_data_centers_ownership ON data_centers(ownership_type);

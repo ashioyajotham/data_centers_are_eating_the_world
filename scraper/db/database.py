@@ -43,7 +43,6 @@ class Database:
                     country = %s,
                     latitude = %s,
                     longitude = %s,
-                    location = ST_SetSRID(ST_MakePoint(%s, %s), 4326),
                     status = %s,
                     ownership_type = %s,
                     power_capacity_mw = %s,
@@ -57,8 +56,6 @@ class Database:
                 data.get('country'),
                 data.get('latitude'),
                 data.get('longitude'),
-                data.get('longitude'),
-                data.get('latitude'),
                 data.get('status', 'operational'),
                 data.get('ownership_type', 'foreign'),
                 capacity.get('power_mw'),
@@ -72,13 +69,13 @@ class Database:
             self.cursor.execute("""
                 INSERT INTO data_centers (
                     name, operator, address, city, country,
-                    latitude, longitude, location,
+                    latitude, longitude,
                     status, ownership_type,
                     power_capacity_mw, floor_space_sqm, rack_count,
                     year_established, tier_rating
                 ) VALUES (
                     %s, %s, %s, %s, %s,
-                    %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326),
+                    %s, %s,
                     %s, %s,
                     %s, %s, %s,
                     %s, %s
@@ -92,8 +89,6 @@ class Database:
                 data.get('country'),
                 data.get('latitude'),
                 data.get('longitude'),
-                data.get('longitude'),
-                data.get('latitude'),
                 data.get('status', 'operational'),
                 data.get('ownership_type', 'foreign'),
                 capacity.get('power_mw'),

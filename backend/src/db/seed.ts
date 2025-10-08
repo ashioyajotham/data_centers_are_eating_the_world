@@ -102,12 +102,12 @@ async function seedDatabase() {
         `
         INSERT INTO data_centers (
           name, operator, address, city, country,
-          latitude, longitude, location,
+          latitude, longitude,
           status, ownership_type,
           power_capacity_mw, year_established
         ) VALUES (
           $1, $2, $3, $4, $5,
-          $6, $7, ST_SetSRID(ST_MakePoint($7, $6), 4326),
+          $6, $7,
           $8, $9,
           $10, $11
         )
