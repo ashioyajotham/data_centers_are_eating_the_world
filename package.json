@@ -1,0 +1,33 @@
+{
+  "name": "data-centers-mapping",
+  "version": "0.1.0",
+  "description": "An open-source, automated mapping project tracking data center infrastructure globally",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "scrape": "cd scraper && python main.py",
+    "db:setup": "cd backend && npm run db:setup",
+    "db:migrate": "cd backend && npm run db:migrate"
+  },
+  "keywords": [
+    "data-centers",
+    "mapping",
+    "infrastructure",
+    "kenya",
+    "africa",
+    "geospatial"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.52.4",
+    "concurrently": "^8.2.2"
+  }
+}
