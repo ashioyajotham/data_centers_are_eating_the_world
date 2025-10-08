@@ -74,22 +74,22 @@ export default function Admin() {
           <div className="mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Pending Review</h2>
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-gray-200 table-fixed">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="w-1/4 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Name
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="w-1/5 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Operator
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="w-1/5 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Location
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="w-1/6 px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                       Actions
                     </th>
                   </tr>
@@ -106,9 +106,9 @@ export default function Admin() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {dc.city}, {dc.country}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
-                          {dc.status}
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 capitalize whitespace-nowrap">
+                          {dc.status.replace('-', ' ')}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -148,25 +148,25 @@ export default function Admin() {
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4">All Data Centers</h2>
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
+            <table className="min-w-full divide-y divide-gray-200 table-fixed">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="w-1/4 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Operator
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Location
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="w-16 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Verified
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  <th className="w-24 px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                     Actions
                   </th>
                 </tr>
@@ -183,11 +183,11 @@ export default function Admin() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {dc.city}, {dc.country}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 capitalize">
-                        {dc.status}
-                      </span>
-                    </td>
+                      <td className="px-6 py-4">
+                        <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 capitalize whitespace-nowrap">
+                          {dc.status.replace('-', ' ')}
+                        </span>
+                      </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {dc.sources.every(s => s.verified) ? (
                         <CheckCircle size={18} className="text-green-500" />
