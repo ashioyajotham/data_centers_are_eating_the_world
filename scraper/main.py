@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 from scrapers.datacentermap_scraper import DataCenterMapScraper
 from scrapers.datacenterscom_scraper import DataCentersComScraper
+from scrapers.manual_data_scraper import ManualDataScraper
 from processors.deduplicator import Deduplicator
 from processors.geocoder import Geocoder
 from db.database import Database
@@ -21,8 +22,9 @@ def main():
     try:
         # Initialize scrapers
         scrapers = [
-            DataCenterMapScraper(),
-            DataCentersComScraper(),
+            ManualDataScraper(),  # Curated research data (works now!)
+            DataCenterMapScraper(),  # Need to update HTML selectors
+            DataCentersComScraper(),  # Need to update HTML selectors
         ]
         
         all_data = []
