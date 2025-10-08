@@ -42,17 +42,31 @@ class DataCenterMapScraper(BaseScraper):
         return data_centers
     
     def parse_listing(self, listing, source_url: str) -> Dict[str, Any]:
-        """Parse a single data center listing"""
+        """
+        Parse a single data center listing
         
-        # Extract basic info (adjust selectors based on actual HTML)
-        name = listing.find('h3', class_='dc-name')
-        name = name.text.strip() if name else 'Unknown'
+        TO UPDATE THIS SCRAPER:
+        1. Visit https://www.datacentermap.com/kenya/
+        2. Right-click on a data center listing → Inspect
+        3. Find the HTML structure and update the selectors below
+        4. Common patterns:
+           - Name might be in: <h3>, <a>, <div class="name">
+           - Operator might be in: <div class="company">, <span class="operator">
+           - Address might be in: <div class="address">, <p class="location">
         
-        operator = listing.find('div', class_='dc-operator')
-        operator = operator.text.strip() if operator else 'Unknown'
+        Example real selectors (update based on actual HTML):
+        """
         
-        address = listing.find('div', class_='dc-address')
-        address_text = address.text.strip() if address else ''
+        # TODO: Update these selectors by inspecting the actual website
+        # Current selectors are placeholders - they won't find anything
+        name_elem = listing.find('h3') or listing.find('a', class_='datacenter-link')
+        name = name_elem.text.strip() if name_elem else 'Unknown'
+        
+        operator_elem = listing.find('div', class_='company') or listing.find('span', class_='operator')
+        operator = operator_elem.text.strip() if operator_elem else 'Unknown'
+        
+        address_elem = listing.find('div', class_='address') or listing.find('p', class_='location')
+        address_text = address_elem.text.strip() if address_elem else ''
         
         # Parse address components
         city = 'Nairobi'  # Default

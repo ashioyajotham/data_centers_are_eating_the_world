@@ -91,23 +91,23 @@ export default function MapView() {
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <button
               onClick={() => handleExport('geojson')}
-              className="px-4 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2 w-full"
+              className="px-4 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2 w-full text-gray-700"
             >
-              <Download size={18} />
+              <Download size={18} className="text-gray-600" />
               <span className="font-medium">Export GeoJSON</span>
             </button>
             <button
               onClick={() => handleExport('json')}
-              className="px-4 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2 w-full border-t"
+              className="px-4 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2 w-full border-t border-gray-200 text-gray-700"
             >
-              <Download size={18} />
+              <Download size={18} className="text-gray-600" />
               <span className="font-medium">Export JSON</span>
             </button>
             <button
               onClick={() => handleExport('csv')}
-              className="px-4 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2 w-full border-t"
+              className="px-4 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2 w-full border-t border-gray-200 text-gray-700"
             >
-              <Download size={18} />
+              <Download size={18} className="text-gray-600" />
               <span className="font-medium">Export CSV</span>
             </button>
           </div>
