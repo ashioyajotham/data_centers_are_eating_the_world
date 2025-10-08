@@ -169,7 +169,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 👨‍💻 Author & Attribution
 
-**Created by:** [Victor Jotham Ashioya](https://github.com/VictorAshioya)
+**Created by:** [Victor Jotham Ashioya](https://github.com/ashioyajotham)
 
 ### How to Attribute This Project
 
@@ -178,21 +178,21 @@ If you use this project or its data, please provide attribution:
 **For Code (MIT License):**
 ```
 Data Centers Mapping Platform by Victor Jotham Ashioya
-https://github.com/VictorAshioya/data_centers_mapping
+https://github.com/ashioyajotham/data_centers_mapping
 ```
 
 **For Data (CC BY 4.0):**
 ```
 Data sourced from "Data Centers Are Eating The World" by Victor Jotham Ashioya
 Licensed under CC BY 4.0
-https://github.com/VictorAshioya/data_centers_mapping
+https://github.com/ashioyajotham/data_centers_mapping
 ```
 
 **In Academic Papers:**
 ```
 Ashioya, V. J. (2025). Data Centers Are Eating The World: 
 An Open-Source Mapping Platform for Global Data Center Infrastructure. 
-GitHub. https://github.com/VictorAshioya/data_centers_mapping
+GitHub. https://github.com/ashioyajotham/data_centers_mapping
 ```
 
 ## 🙏 Acknowledgments
