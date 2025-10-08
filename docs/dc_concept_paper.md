@@ -260,10 +260,10 @@ We welcome contributions at all levels:
 ## 📚 Key Resources
 
 ### **Project Links**
-- **GitHub Repository**: [Coming Soon]
-- **Live Demo**: [Coming Soon]
-- **API Documentation**: [Coming Soon]
-- **Twitter/X**: [Your handle]
+- **GitHub Repository**: https://github.com/ashioyajotham/data_centers_mapping
+- **Live Demo**: Coming Soon (Deploy with Vercel)
+- **API Documentation**: See `docs/API.md`
+- **Twitter/X**: @ashioyajotham
 
 ### **Data Sources**
 - [DataCenterMap - Kenya](https://www.datacentermap.com/kenya/)
@@ -324,10 +324,10 @@ We welcome contributions at all levels:
 - Funding for hosting/operations
 
 **Contact:**
-- Email: [Your email]
-- Twitter/X: [Your handle]
-- GitHub: [Repository link]
-- Discord: [Community link]
+- Email: victorashioya@gmail.com
+- Twitter/X: @ashioyajotham
+- GitHub: https://github.com/ashioyajotham/data_centers_mapping
+- LinkedIn: https://linkedin.com/in/ashioyajotham
 
 ---
 
@@ -355,9 +355,11 @@ Inspired by the pioneering work of:
 - The open source mapping community
 - African tech ecosystem builders
 
+**Created by:**
+- **Victor Jotham Ashioya** - Project Creator & Lead Developer
+
 **Special thanks to contributors** (list will grow!):
-- [Your name] - Project initiator
-- [Future contributors]
+- [Open for contributors - join us!]
 
 ---
 

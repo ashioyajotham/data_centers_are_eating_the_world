@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import About from './pages/About'
 import DataExplorer from './pages/DataExplorer'
 import Admin from './pages/Admin'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
@@ -14,7 +15,14 @@ function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="explorer" element={<DataExplorer />} />
         <Route path="about" element={<About />} />
-        <Route path="admin" element={<Admin />} />
+        <Route 
+          path="admin" 
+          element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          } 
+        />
       </Route>
     </Routes>
   )

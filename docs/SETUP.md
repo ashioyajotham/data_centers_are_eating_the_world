@@ -116,14 +116,14 @@ USER_AGENT=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 
 ### 6. Seed the Database
 
-Load sample data:
+Load initial data centers:
 
 ```bash
 cd backend
 npm run db:seed
 ```
 
-This will add ~6 sample data centers from Kenya.
+This will add 13 verified data centers from Kenya.
 
 ## Running the Application
 

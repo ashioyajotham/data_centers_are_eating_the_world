@@ -124,7 +124,7 @@ export default function About() {
           </p>
           <div className="flex flex-wrap gap-4">
             <a
-              href="https://github.com/your-repo"
+              href="https://github.com/ashioyajotham/data_centers_mapping"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
@@ -134,7 +134,7 @@ export default function About() {
               <ExternalLink size={16} />
             </a>
             <a
-              href="https://twitter.com/your-handle"
+              href="https://twitter.com/ashioyajotham"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -144,7 +144,7 @@ export default function About() {
               <ExternalLink size={16} />
             </a>
             <a
-              href="mailto:your-email@example.com"
+              href="mailto:victorashioya@gmail.com"
               className="flex items-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
             >
               <Mail size={20} />
