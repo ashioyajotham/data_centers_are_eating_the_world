@@ -27,6 +27,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "rollup": "^4.52.4"
   }
 }
