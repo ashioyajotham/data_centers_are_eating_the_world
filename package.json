@@ -27,7 +27,6 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@rollup/rollup-win32-x64-msvc": "^4.52.4",
     "concurrently": "^8.2.2"
   }
 }

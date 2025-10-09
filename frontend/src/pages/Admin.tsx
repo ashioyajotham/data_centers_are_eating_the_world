@@ -74,22 +74,22 @@ export default function Admin() {
           <div className="mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Pending Review</h2>
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200 table-fixed">
+              <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="w-1/4 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase" style={{width: '30%'}}>
                       Name
                     </th>
-                    <th className="w-1/5 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase" style={{width: '20%'}}>
                       Operator
                     </th>
-                    <th className="w-1/5 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase" style={{width: '20%'}}>
                       Location
                     </th>
-                    <th className="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase" style={{minWidth: '180px'}}>
                       Status
                     </th>
-                    <th className="w-1/6 px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase" style={{width: '120px'}}>
                       Actions
                     </th>
                   </tr>
@@ -97,17 +97,17 @@ export default function Admin() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {unverifiedDataCenters.map(dc => (
                     <tr key={dc.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">{dc.name}</div>
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-gray-900 truncate" title={dc.name}>{dc.name}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {dc.operator}
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        <div className="truncate" title={dc.operator}>{dc.operator}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {dc.city}, {dc.country}
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        <div className="truncate">{dc.city}, {dc.country}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 capitalize whitespace-nowrap">
+                        <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 capitalize whitespace-nowrap">
                           {dc.status.replace('-', ' ')}
                         </span>
                       </td>
@@ -148,25 +148,25 @@ export default function Admin() {
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-4">All Data Centers</h2>
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200 table-fixed">
+            <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="w-1/4 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase" style={{width: '28%'}}>
                     Name
                   </th>
-                  <th className="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase" style={{width: '18%'}}>
                     Operator
                   </th>
-                  <th className="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase" style={{width: '18%'}}>
                     Location
                   </th>
-                  <th className="w-1/6 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase" style={{minWidth: '180px'}}>
                     Status
                   </th>
-                  <th className="w-16 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase" style={{width: '100px'}}>
                     Verified
                   </th>
-                  <th className="w-24 px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase" style={{width: '120px'}}>
                     Actions
                   </th>
                 </tr>
@@ -174,25 +174,25 @@ export default function Admin() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {dataCenters?.map(dc => (
                   <tr key={dc.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{dc.name}</div>
+                    <td className="px-6 py-4">
+                      <div className="font-medium text-gray-900 truncate" title={dc.name}>{dc.name}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {dc.operator}
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      <div className="truncate" title={dc.operator}>{dc.operator}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {dc.city}, {dc.country}
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      <div className="truncate">{dc.city}, {dc.country}</div>
                     </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-block px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 capitalize whitespace-nowrap">
-                          {dc.status.replace('-', ' ')}
-                        </span>
-                      </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
+                      <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 capitalize whitespace-nowrap">
+                        {dc.status.replace('-', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-center">
                       {dc.sources.every(s => s.verified) ? (
-                        <CheckCircle size={18} className="text-green-500" />
+                        <CheckCircle size={18} className="text-green-500 inline-block" />
                       ) : (
-                        <XCircle size={18} className="text-gray-300" />
+                        <XCircle size={18} className="text-gray-300 inline-block" />
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
