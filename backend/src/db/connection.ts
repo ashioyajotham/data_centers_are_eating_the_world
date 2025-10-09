@@ -3,8 +3,11 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+const useSSL = process.env.DATABASE_SSL === 'true' || process.env.NODE_ENV === 'production'
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: useSSL ? { rejectUnauthorized: false } : undefined,
 })
 
 pool.on('error', (err) => {
