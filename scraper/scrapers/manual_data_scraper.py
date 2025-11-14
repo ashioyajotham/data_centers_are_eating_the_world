@@ -356,6 +356,30 @@ class ManualDataScraper(BaseScraper):
                     'TEAMS Cable Official'
                 )]
             },
+            # Latest addition - November 2025
+            {
+                'name': 'Servernah AI Factory at iXAfrica NBOX1',
+                'operator': 'Atlancis Technologies (Servernah Cloud) / Everse Technology / iXAfrica',
+                'address': 'iXAfrica NBOX1 Campus, Mombasa Road, Nairobi',
+                'city': 'Nairobi',
+                'country': 'Kenya',
+                'latitude': -1.3205,  # Same as iXAfrica campus
+                'longitude': 36.8831,
+                'status': 'operational',
+                'ownership_type': 'joint-venture',
+                'capacity': {'power_mw': None},  # 50kW per rack, total capacity TBD
+                'year_established': 2025,
+                'sources': [
+                    self.create_source(
+                        'https://www.citizen.digital/article/kenya-unveils-regions-first-gpu-powered-ai-infrastructure-n372958',
+                        'Citizen Digital - Kenya GPU AI Infrastructure Launch'
+                    ),
+                    self.create_source(
+                        'https://www.ixafrica.com',
+                        'iXAfrica Official - NBOX1 Campus'
+                    )
+                ]
+            },
         ]
         
         return data_centers

@@ -82,6 +82,29 @@ npm run dev:backend   # Backend at http://localhost:3001
 npm run scrape
 ```
 
+### News Monitor (New! 🎉)
+
+Automatically monitors news sources for data center announcements and flags them for manual review:
+
+```bash
+cd scraper
+python news_monitor.py
+```
+
+Or integrate into main scraper:
+```bash
+python main.py --include-news  # Run news monitor + normal scraping
+python main.py --news-only      # Only check news (no DB updates)
+```
+
+**How it works:**
+1. Scans RSS feeds from Citizen Digital, TechCrunch, Business Daily Kenya
+2. Finds articles mentioning data centers, AI infrastructure, etc.
+3. Generates a review report with article links
+4. You manually review and add new data centers to `scraper/scrapers/manual_data_scraper.py`
+
+See [NEWS_MONITOR_GUIDE.md](scraper/NEWS_MONITOR_GUIDE.md) for details.
+
 ## 🏗️ Project Structure
 
 ```
