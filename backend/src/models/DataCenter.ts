@@ -157,6 +157,18 @@ export class DataCenterModel {
     return (result.rowCount || 0) > 0
   }
 
+  /** Mark all sources for a data center as verified (admin review). */
+  static async verifyAllSources(id: string): Promise<DataCenter | null> {
+    const existing = await this.findById(id)
+    if (!existing) return null
+
+    await query(
+      `UPDATE sources SET verified = true WHERE data_center_id = $1`,
+      [id]
+    )
+    return this.findById(id)
+  }
+
   private static mapRow(row: any): DataCenter {
     return {
       id: row.id,

@@ -85,7 +85,13 @@ Create `backend/.env`:
 DATABASE_URL=postgresql://localhost:5432/datacenter_map
 PORT=3001
 NODE_ENV=development
+ADMIN_PASSWORD=choose-a-long-random-password
+JWT_SECRET=choose-a-long-random-secret-32-chars-or-more
+# Optional (comma-separated CORS origins):
+# FRONTEND_ORIGIN=http://localhost:5173
 ```
+
+See `backend/.env.example` for optional variables.
 
 Adjust the database URL if you have custom PostgreSQL settings:
 ```env

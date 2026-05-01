@@ -52,11 +52,17 @@ npm run db:migrate
 
 Create `.env` files in both `backend/` and `frontend/`:
 
-**backend/.env**
+**backend/.env** (see `backend/.env.example`)
+
 ```env
 DATABASE_URL=postgresql://localhost:5432/datacenter_map
 PORT=3001
 NODE_ENV=development
+# Admin UI + mutating API (POST/PUT/PATCH/DELETE on datacenters)
+ADMIN_PASSWORD=your-strong-password
+JWT_SECRET=your-32plus-char-random-secret
+# Optional CORS allowlist (comma-separated); defaults to localhost:5173
+# FRONTEND_ORIGIN=http://localhost:5173
 ```
 
 **frontend/.env**
@@ -146,7 +152,7 @@ data_centers_mapping/
 ### Backend
 - **Node.js** + Express
 - **PostgreSQL** + PostGIS - Geospatial database
-- **Prisma** - Database ORM
+- **pg** (node-postgres) - Database client
 - **Node-cron** - Scheduled tasks
 
 ### Data Pipeline

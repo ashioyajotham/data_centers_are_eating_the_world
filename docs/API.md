@@ -10,7 +10,42 @@ http://localhost:3001/api
 
 ## Authentication
 
-Currently no authentication required (public API).
+**Read-only endpoints** (`GET` on `/datacenters`, `/statistics`, exports) are public.
+
+**Mutating endpoints** require a JWT obtained from the admin login:
+
+```http
+POST /auth/login
+Content-Type: application/json
+
+{"password":"<ADMIN_PASSWORD>"}
+```
+
+**Response:** `{ "token": "<jwt>" }`
+
+Send the token on protected requests:
+
+```http
+Authorization: Bearer <jwt>
+```
+
+**Protected routes:**
+
+- `POST /datacenters`
+- `PUT /datacenters/:id`
+- `DELETE /datacenters/:id`
+- `PATCH /datacenters/:id/sources/verify`
+
+**Session check (admin SPA):**
+
+```http
+GET /auth/me
+Authorization: Bearer <jwt>
+```
+
+Returns `{ "ok": true }` if the token is valid.
+
+Configure `ADMIN_PASSWORD`, `JWT_SECRET`, and optionally `FRONTEND_ORIGIN` on the server (see `backend/.env.example`).
 
 ## Endpoints
 
@@ -122,6 +157,19 @@ Content-Type: application/json | text/csv | application/geo+json
 Content-Disposition: attachment; filename=datacenters.{format}
 ```
 
+#### Verify all sources (admin)
+
+Marks every source row for this data center as verified.
+
+```http
+PATCH /datacenters/:id/sources/verify
+Authorization: Bearer <jwt>
+```
+
+**Response:** Data center object (same shape as GET by ID).
+
+**Status codes:** `200`, `401`, `404`, `503` (if auth env is not configured).
+
 ### Statistics
 
 #### Get Statistics
@@ -223,8 +271,10 @@ GET /statistics
 | `201` | Created |
 | `204` | No Content |
 | `400` | Bad Request |
+| `401` | Unauthorized |
 | `404` | Not Found |
 | `500` | Internal Server Error |
+| `503` | Service unavailable (e.g. admin auth not configured) |
 
 ## Examples
 
@@ -292,11 +342,10 @@ Currently no rate limiting implemented. In production:
 
 ## CORS
 
-CORS is enabled for all origins in development. In production, configure allowed origins.
+Allowed origins come from the `FRONTEND_ORIGIN` environment variable (comma-separated). If unset, defaults to `http://localhost:5173` and `http://127.0.0.1:5173`.
 
 ## Future Enhancements
 
-- [ ] Authentication for write operations
 - [ ] Pagination for large datasets
 - [ ] Advanced filtering
 - [ ] Real-time updates via WebSockets

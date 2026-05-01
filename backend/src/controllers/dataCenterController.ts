@@ -153,3 +153,19 @@ export const deleteDataCenter = async (req: Request, res: Response) => {
   }
 }
 
+export const verifyDataCenterSources = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+    const dataCenter = await DataCenterModel.verifyAllSources(id)
+
+    if (!dataCenter) {
+      return res.status(404).json({ error: 'Data center not found' })
+    }
+
+    res.json(dataCenter)
+  } catch (error) {
+    console.error('Error verifying sources:', error)
+    res.status(500).json({ error: 'Failed to verify sources' })
+  }
+}
+
