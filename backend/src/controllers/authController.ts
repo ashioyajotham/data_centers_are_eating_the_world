@@ -37,8 +37,12 @@ function parseAllowedGoogleEmails(): string[] {
 
 export const status = async (_req: Request, res: Response) => {
   const jwtConfigured = Boolean(getJwtSecret())
-  const passwordHash = await AdminAuthModel.getPasswordHash()
-  const needsPasswordSetup = passwordHash === null
+  const pwState = await AdminAuthModel.getPasswordState()
+
+  const migrationRequired = pwState.kind === 'table_missing'
+  const passwordHash = pwState.kind === 'ok' ? pwState.hash : null
+
+  const needsPasswordSetup = migrationRequired ? true : passwordHash === null
   const legacyEnvLoginAvailable = Boolean(process.env.ADMIN_PASSWORD)
   const googleEnabled = Boolean(
     process.env.GOOGLE_CLIENT_ID && parseAllowedGoogleEmails().length > 0
@@ -53,6 +57,7 @@ export const status = async (_req: Request, res: Response) => {
     legacyEnvLoginAvailable,
     googleEnabled,
     setupRequiresToken,
+    migrationRequired,
   })
 }
 
@@ -63,8 +68,14 @@ export const setupPassword = async (req: Request, res: Response) => {
     return res.status(503).json({ error: 'JWT_SECRET is not configured on the server' })
   }
 
-  const passwordHash = await AdminAuthModel.getPasswordHash()
-  if (passwordHash !== null) {
+  const pwState = await AdminAuthModel.getPasswordState()
+  if (pwState.kind === 'table_missing') {
+    return res.status(503).json({
+      error:
+        'Database is missing the admin_auth table. Run the SQL from backend/src/db/schema.sql (admin_auth section) on your production database, or run: cd backend && npm run db:setup',
+    })
+  }
+  if (pwState.hash !== null) {
     return res.status(400).json({ error: 'Admin password is already configured' })
   }
 
@@ -90,9 +101,19 @@ export const setupPassword = async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Passwords do not match' })
   }
 
-  const hash = await bcrypt.hash(password, BCRYPT_COST)
-  await AdminAuthModel.setPasswordHash(hash)
-  res.json({ token: issueAdminToken() })
+  try {
+    const hash = await bcrypt.hash(password, BCRYPT_COST)
+    await AdminAuthModel.setPasswordHash(hash)
+    res.json({ token: issueAdminToken() })
+  } catch (e: unknown) {
+    if ((e as { code?: string })?.code === '42P01') {
+      return res.status(503).json({
+        error:
+          'Database is missing the admin_auth table. Apply the schema update (see backend/src/db/schema.sql).',
+      })
+    }
+    throw e
+  }
 }
 
 export const login = async (req: Request, res: Response) => {
@@ -106,10 +127,20 @@ export const login = async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Password required' })
   }
 
-  const passwordHash = await AdminAuthModel.getPasswordHash()
+  const pwState = await AdminAuthModel.getPasswordState()
+  if (pwState.kind === 'table_missing') {
+    const adminPassword = process.env.ADMIN_PASSWORD
+    if (adminPassword && timingSafeEqualString(password, adminPassword)) {
+      return res.json({ token: issueAdminToken() })
+    }
+    return res.status(503).json({
+      error:
+        'Database is missing the admin_auth table. Run the migration SQL, or set ADMIN_PASSWORD temporarily after creating the table.',
+    })
+  }
 
-  if (passwordHash) {
-    const ok = await bcrypt.compare(password, passwordHash)
+  if (pwState.hash) {
+    const ok = await bcrypt.compare(password, pwState.hash)
     if (!ok) {
       return res.status(401).json({ error: 'Invalid credentials' })
     }

@@ -62,6 +62,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
             legacyEnvLoginAvailable: false,
             googleEnabled: false,
             setupRequiresToken: false,
+            migrationRequired: false,
           })
           setPhase('guest')
         }
@@ -197,10 +198,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   const showInitialSetup =
-    status.jwtConfigured && status.needsPasswordSetup && !showLegacyLogin
+    status.jwtConfigured &&
+    status.needsPasswordSetup &&
+    !showLegacyLogin &&
+    !status.migrationRequired
   const showPasswordLogin =
     status.jwtConfigured &&
-    (!status.needsPasswordSetup || (status.legacyEnvLoginAvailable && showLegacyLogin))
+    (!status.needsPasswordSetup ||
+      (status.legacyEnvLoginAvailable && (showLegacyLogin || Boolean(status.migrationRequired))))
 
   return (
     <div className="h-full flex items-center justify-center bg-gray-50 p-4 overflow-y-auto">
@@ -211,6 +216,20 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
             Sign in with Google (if configured), or your admin password stored securely on the server.
           </p>
         </div>
+
+        {status.migrationRequired && (
+          <div className="mb-4 rounded-lg bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm">
+            <p className="font-medium">Database migration required</p>
+            <p className="mt-2">
+              The API database does not have the <code className="text-xs">admin_auth</code> table yet. Open your
+              hosted Postgres (e.g. Render Dashboard → your PostgreSQL → connect or SQL shell) and run the
+              block under <code className="text-xs">-- Admin auth</code> in{' '}
+              <code className="text-xs">backend/src/db/schema.sql</code>, or from your machine run{' '}
+              <code className="text-xs">cd backend && npm run db:setup</code> using production{' '}
+              <code className="text-xs">DATABASE_URL</code> in <code className="text-xs">.env</code>.
+            </p>
+          </div>
+        )}
 
         {!status.jwtConfigured && (
           <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 text-sm">

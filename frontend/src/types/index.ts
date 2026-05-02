@@ -81,5 +81,7 @@ export interface AuthStatus {
   legacyEnvLoginAvailable: boolean
   googleEnabled: boolean
   setupRequiresToken: boolean
+  /** True when the DB has not been migrated with `admin_auth` yet (production deploy). */
+  migrationRequired?: boolean
 }
 

@@ -9,6 +9,38 @@ The application consists of three main components:
 2. **Backend** - Node.js API
 3. **Scraper** - Python scripts (scheduled jobs)
 
+## Hosted API + Postgres (Render / Railway / Fly): `admin_auth` migration
+
+If the API logs show `relation "admin_auth" does not exist`, your **production** Postgres was created before that table existed. The app will not crash on `/api/auth/status`, but you must apply the schema once:
+
+**Option A — SQL in the host’s Postgres UI** (recommended for Render):
+
+Run the following against your **production** database (same `DATABASE_URL` as the API):
+
+```sql
+CREATE TABLE IF NOT EXISTS admin_auth (
+    singleton SMALLINT PRIMARY KEY CHECK (singleton = 1),
+    password_hash TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO admin_auth (singleton, password_hash)
+VALUES (1, NULL)
+ON CONFLICT (singleton) DO NOTHING;
+```
+
+**Option B — From your computer** (if the DB allows SSL connections from your IP):
+
+Set `DATABASE_URL` in `backend/.env` to the production URL (Render often requires `?sslmode=require`). Then:
+
+```bash
+cd backend && npm run db:setup
+```
+
+That replays `schema.sql`, including `admin_auth`. Then redeploy or restart the API.
+
+After migration, call `GET /api/auth/status` and confirm `"migrationRequired": false` (or Absent/false).
+
 ## Prerequisites
 
 - VPS or cloud hosting (AWS, DigitalOcean, etc.)

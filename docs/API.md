@@ -31,7 +31,7 @@ Authorization: Bearer <jwt>
 GET /auth/status
 ```
 
-Returns `jwtConfigured`, `needsPasswordSetup`, `legacyEnvLoginAvailable`, `googleEnabled`, `setupRequiresToken`.
+Returns `jwtConfigured`, `needsPasswordSetup`, `legacyEnvLoginAvailable`, `googleEnabled`, `setupRequiresToken`, and `migrationRequired` (true if the `admin_auth` table is missing in Postgres).
 
 ### Initial password (database bcrypt hash)
 
