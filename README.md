@@ -58,10 +58,15 @@ Create `.env` files in both `backend/` and `frontend/`:
 DATABASE_URL=postgresql://localhost:5432/datacenter_map
 PORT=3001
 NODE_ENV=development
-# Admin UI + mutating API (POST/PUT/PATCH/DELETE on datacenters)
-ADMIN_PASSWORD=your-strong-password
 JWT_SECRET=your-32plus-char-random-secret
-# Optional CORS allowlist (comma-separated); defaults to localhost:5173
+# After first deploy: open Admin in the app and complete "Initial setup" (password is stored as a bcrypt hash in Postgres).
+# Optional legacy bootstrap until you set that password (not recommended long-term):
+# ADMIN_PASSWORD=...
+# Optional: require this value in setup-password when set (recommended for public APIs)
+# ADMIN_SETUP_TOKEN=...
+# Optional Google admin sign-in (same Web Client ID as frontend VITE_GOOGLE_CLIENT_ID):
+# GOOGLE_CLIENT_ID=...
+# ADMIN_GOOGLE_EMAILS=you@gmail.com
 # FRONTEND_ORIGIN=http://localhost:5173
 ```
 
@@ -69,7 +74,11 @@ JWT_SECRET=your-32plus-char-random-secret
 ```env
 VITE_API_URL=http://localhost:3001
 VITE_MAPBOX_TOKEN=your_mapbox_token_here
+# Same OAuth Client ID as backend GOOGLE_CLIENT_ID if using Google admin sign-in:
+# VITE_GOOGLE_CLIENT_ID=...
 ```
+
+Google Cloud: create an **OAuth 2.0 Web application** client, add **Authorized JavaScript origins** (e.g. `http://localhost:5173` and your production site URL).
 
 ### Run the Application
 

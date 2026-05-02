@@ -85,11 +85,11 @@ Create `backend/.env`:
 DATABASE_URL=postgresql://localhost:5432/datacenter_map
 PORT=3001
 NODE_ENV=development
-ADMIN_PASSWORD=choose-a-long-random-password
-JWT_SECRET=choose-a-long-random-secret-32-chars-or-more
-# Optional (comma-separated CORS origins):
-# FRONTEND_ORIGIN=http://localhost:5173
+JWT_SECRET=choose-a-long-random-secret
+# See backend/.env.example for Google sign-in, ADMIN_SETUP_TOKEN, optional legacy ADMIN_PASSWORD
 ```
+
+Re-run **`npm run db:setup`** (from repo root: `cd backend && npm run db:setup`) after pulling if the `admin_auth` table is new—then use the Admin page **Initial setup** to set the password (stored hashed in the DB).
 
 See `backend/.env.example` for optional variables.
 
@@ -104,6 +104,7 @@ Create `frontend/.env`:
 ```env
 VITE_API_URL=http://localhost:3001
 VITE_MAPBOX_TOKEN=pk.your_mapbox_token_here
+# VITE_GOOGLE_CLIENT_ID=...  # optional; match backend GOOGLE_CLIENT_ID
 ```
 
 **Getting a Mapbox Token:**

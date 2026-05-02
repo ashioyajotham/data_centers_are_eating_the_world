@@ -12,18 +12,7 @@ http://localhost:3001/api
 
 **Read-only endpoints** (`GET` on `/datacenters`, `/statistics`, exports) are public.
 
-**Mutating endpoints** require a JWT obtained from the admin login:
-
-```http
-POST /auth/login
-Content-Type: application/json
-
-{"password":"<ADMIN_PASSWORD>"}
-```
-
-**Response:** `{ "token": "<jwt>" }`
-
-Send the token on protected requests:
+**Mutating endpoints** require a JWT:
 
 ```http
 Authorization: Bearer <jwt>
@@ -36,7 +25,50 @@ Authorization: Bearer <jwt>
 - `DELETE /datacenters/:id`
 - `PATCH /datacenters/:id/sources/verify`
 
-**Session check (admin SPA):**
+### Status (no auth)
+
+```http
+GET /auth/status
+```
+
+Returns `jwtConfigured`, `needsPasswordSetup`, `legacyEnvLoginAvailable`, `googleEnabled`, `setupRequiresToken`.
+
+### Initial password (database bcrypt hash)
+
+When `needsPasswordSetup` is true, create the admin password once (stored hashed in Postgres):
+
+```http
+POST /auth/setup-password
+Content-Type: application/json
+
+{"password":"<12+ chars>","passwordConfirm":"<same>","setupToken":"<optional if ADMIN_SETUP_TOKEN set>"}
+```
+
+**Response:** `{ "token": "<jwt>" }`
+
+### Password login
+
+```http
+POST /auth/login
+Content-Type: application/json
+
+{"password":"<password>"}
+```
+
+Uses the bcrypt hash in the database when configured. If the database password is not set yet, the server may still accept `ADMIN_PASSWORD` from the environment (legacy bootstrap only).
+
+### Google sign-in
+
+```http
+POST /auth/google
+Content-Type: application/json
+
+{"credential":"<Google ID token from GIS>"}
+```
+
+Requires `GOOGLE_CLIENT_ID` and `ADMIN_GOOGLE_EMAILS` (comma-separated allowlist) on the server. The frontend must use the same OAuth Web Client ID (e.g. `VITE_GOOGLE_CLIENT_ID`).
+
+### Session check
 
 ```http
 GET /auth/me
@@ -45,7 +77,7 @@ Authorization: Bearer <jwt>
 
 Returns `{ "ok": true }` if the token is valid.
 
-Configure `ADMIN_PASSWORD`, `JWT_SECRET`, and optionally `FRONTEND_ORIGIN` on the server (see `backend/.env.example`).
+Configure `JWT_SECRET` and optionally `FRONTEND_ORIGIN`, Google vars, `ADMIN_SETUP_TOKEN`, and legacy `ADMIN_PASSWORD` — see `backend/.env.example`.
 
 ## Endpoints
 

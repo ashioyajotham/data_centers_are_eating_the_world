@@ -66,3 +66,14 @@ CREATE TRIGGER update_data_centers_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+-- Admin auth (singleton row; password is bcrypt hash, never plaintext)
+CREATE TABLE IF NOT EXISTS admin_auth (
+    singleton SMALLINT PRIMARY KEY CHECK (singleton = 1),
+    password_hash TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO admin_auth (singleton, password_hash)
+VALUES (1, NULL)
+ON CONFLICT (singleton) DO NOTHING;
+

@@ -74,3 +74,12 @@ export interface MapViewport {
   pitch?: number
 }
 
+/** GET /api/auth/status */
+export interface AuthStatus {
+  jwtConfigured: boolean
+  needsPasswordSetup: boolean
+  legacyEnvLoginAvailable: boolean
+  googleEnabled: boolean
+  setupRequiresToken: boolean
+}
+
