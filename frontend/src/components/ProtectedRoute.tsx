@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
+import { Loader2 } from 'lucide-react'
 import { authApi } from '@/services/api'
 import { getAdminToken, setAdminToken } from '@/services/authStorage'
 import type { AuthStatus } from '@/types'
+import { AdminSessionContext } from '@/contexts/AdminSessionContext'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -15,6 +17,7 @@ function parseAuthError(err: unknown): string {
     const msg = err.response?.data as { error?: string } | undefined
     if (msg?.error) return msg.error
     if (err.response?.status === 401) return 'Invalid credentials'
+    if (!err.response) return 'Cannot reach the API. Check VITE_API_URL and CORS (FRONTEND_ORIGIN).'
   }
   return 'Something went wrong. Please try again.'
 }
@@ -31,7 +34,9 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [setupPasswordConfirm, setSetupPasswordConfirm] = useState('')
   const [setupToken, setSetupToken] = useState('')
 
-  /** When DB password not set but legacy ADMIN_PASSWORD exists, allow sign-in without completing setup. */
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [isSettingUp, setIsSettingUp] = useState(false)
+
   const [showLegacyLogin, setShowLegacyLogin] = useState(false)
 
   const googleBtnRef = useRef<HTMLDivElement>(null)
@@ -128,6 +133,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setIsLoggingIn(true)
     try {
       const { token } = await authApi.login(loginPassword)
       setAdminToken(token)
@@ -136,6 +142,8 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     } catch (err) {
       setError(parseAuthError(err))
       setLoginPassword('')
+    } finally {
+      setIsLoggingIn(false)
     }
   }
 
@@ -150,6 +158,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
       setError('Passwords do not match.')
       return
     }
+    setIsSettingUp(true)
     try {
       const { token } = await authApi.setupPassword({
         password: setupPassword,
@@ -163,6 +172,8 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
       setPhase('authed')
     } catch (err) {
       setError(parseAuthError(err))
+    } finally {
+      setIsSettingUp(false)
     }
   }
 
@@ -176,24 +187,17 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (phase === 'loading' || status === null) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      <div className="flex h-full items-center justify-center bg-slate-100">
+        <div className="h-12 w-12 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
       </div>
     )
   }
 
   if (phase === 'authed') {
     return (
-      <div className="h-full w-full relative">
+      <AdminSessionContext.Provider value={{ logout: handleLogout }}>
         <div className="h-full w-full">{children}</div>
-        <button
-          type="button"
-          onClick={handleLogout}
-          className="fixed top-20 right-8 z-50 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-lg"
-        >
-          Logout Admin
-        </button>
-      </div>
+      </AdminSessionContext.Provider>
     )
   }
 
@@ -207,46 +211,47 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     (!status.needsPasswordSetup ||
       (status.legacyEnvLoginAvailable && (showLegacyLogin || Boolean(status.migrationRequired))))
 
+  const authBusy = isLoggingIn || isSettingUp
+
   return (
-    <div className="h-full flex items-center justify-center bg-gray-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Admin Access</h2>
-          <p className="text-gray-600 text-sm">
-            Sign in with Google (if configured), or your admin password stored securely on the server.
+    <div className="flex h-full items-center justify-center overflow-y-auto bg-gradient-to-br from-slate-200 via-slate-100 to-primary-50/40 p-4">
+      <div className="w-full max-w-md rounded-2xl border border-white/60 bg-white/90 p-8 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-200/80 backdrop-blur-md">
+        <div className="mb-6 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-500/15 ring-1 ring-primary-500/25">
+            <span className="text-xl">🔐</span>
+          </div>
+          <h2 className="text-xl font-semibold tracking-tight text-slate-900">Admin access</h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">
+            Sign in with Google (if configured) or your admin password.
           </p>
         </div>
 
         {status.migrationRequired && (
-          <div className="mb-4 rounded-lg bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm">
+          <div className="mb-4 rounded-xl border border-red-200/80 bg-red-50/90 px-4 py-3 text-sm text-red-900">
             <p className="font-medium">Database migration required</p>
-            <p className="mt-2">
-              The API database does not have the <code className="text-xs">admin_auth</code> table yet. Open your
-              hosted Postgres (e.g. Render Dashboard → your PostgreSQL → connect or SQL shell) and run the
-              block under <code className="text-xs">-- Admin auth</code> in{' '}
-              <code className="text-xs">backend/src/db/schema.sql</code>, or from your machine run{' '}
-              <code className="text-xs">cd backend && npm run db:setup</code> using production{' '}
-              <code className="text-xs">DATABASE_URL</code> in <code className="text-xs">.env</code>.
+            <p className="mt-2 text-red-800/90">
+              Add the <code className="rounded bg-red-100 px-1 text-xs">admin_auth</code> table on your production
+              Postgres (see <code className="text-xs">docs/DEPLOYMENT.md</code>).
             </p>
           </div>
         )}
 
         {!status.jwtConfigured && (
-          <div className="mb-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 text-sm">
-            Set <code className="text-xs">JWT_SECRET</code> on the API server before admin sign-in works.
+          <div className="mb-4 rounded-xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-sm text-amber-950">
+            Set <code className="rounded bg-amber-100/80 px-1 text-xs">JWT_SECRET</code> on the API server.
           </div>
         )}
 
         {status.jwtConfigured && showInitialSetup && (
-          <div className="mb-8 border-b border-gray-100 pb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">Initial setup</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Create the admin password (bcrypt hash in the database). You will be signed in automatically.
+          <div className="mb-8 border-b border-slate-100 pb-8">
+            <h3 className="mb-1 text-base font-semibold text-slate-900">Initial setup</h3>
+            <p className="mb-4 text-sm text-slate-600">
+              Choose a strong password; it is stored as a bcrypt hash in the database.
             </p>
             <form onSubmit={handleSetup} className="space-y-4">
               {status.setupRequiresToken && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="setupToken">
+                  <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="setupToken">
                     Setup token
                   </label>
                   <input
@@ -254,14 +259,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
                     type="password"
                     value={setupToken}
                     onChange={(e) => setSetupToken(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                     autoComplete="off"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Value must match server ADMIN_SETUP_TOKEN.</p>
+                  <p className="mt-1 text-xs text-slate-500">Must match server ADMIN_SETUP_TOKEN.</p>
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="newPass">
+                <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="newPass">
                   New password
                 </label>
                 <input
@@ -269,13 +274,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
                   type="password"
                   value={setupPassword}
                   onChange={(e) => setSetupPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   autoComplete="new-password"
                   minLength={MIN_PASSWORD_LENGTH}
+                  disabled={authBusy}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="newPass2">
+                <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="newPass2">
                   Confirm password
                 </label>
                 <input
@@ -283,17 +289,26 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
                   type="password"
                   value={setupPasswordConfirm}
                   onChange={(e) => setSetupPasswordConfirm(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   autoComplete="new-password"
                   minLength={MIN_PASSWORD_LENGTH}
+                  disabled={authBusy}
                 />
               </div>
-              <p className="text-xs text-gray-500">Minimum length {MIN_PASSWORD_LENGTH} characters.</p>
+              <p className="text-xs text-slate-500">Minimum {MIN_PASSWORD_LENGTH} characters.</p>
               <button
                 type="submit"
-                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg"
+                disabled={authBusy}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Save password and sign in
+                {isSettingUp ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving…
+                  </>
+                ) : (
+                  'Save password and sign in'
+                )}
               </button>
             </form>
             {status.legacyEnvLoginAvailable && (
@@ -303,28 +318,36 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
                   setShowLegacyLogin(true)
                   setError('')
                 }}
-                className="mt-4 w-full text-sm text-primary-600 hover:text-primary-800"
+                className="mt-4 w-full text-sm font-medium text-primary-600 hover:text-primary-800"
               >
-                Use legacy server password (ADMIN_PASSWORD) instead
+                Use legacy ADMIN_PASSWORD instead
               </button>
             )}
           </div>
         )}
 
         {status.googleEnabled && !viteGoogleId && (
-          <div className="mb-4 text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
-            Google sign-in is enabled on the API, but <code className="text-xs">VITE_GOOGLE_CLIENT_ID</code>{' '}
-            is missing on the frontend build.
+          <div className="mb-4 rounded-xl border border-amber-200/80 bg-amber-50/90 px-3 py-2 text-sm text-amber-950">
+            API has Google enabled, but <code className="text-xs">VITE_GOOGLE_CLIENT_ID</code> is missing — redeploy
+            the frontend after adding it.
           </div>
+        )}
+
+        {!status.googleEnabled && status.jwtConfigured && (
+          <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs leading-relaxed text-slate-600">
+            <span className="font-medium text-slate-700">Google sign-in off:</span> set{' '}
+            <code className="rounded bg-white px-1">GOOGLE_CLIENT_ID</code> and{' '}
+            <code className="rounded bg-white px-1">ADMIN_GOOGLE_EMAILS</code> on the API, and{' '}
+            <code className="rounded bg-white px-1">VITE_GOOGLE_CLIENT_ID</code> on the frontend build.
+ </div>
         )}
 
         {googleReadyOnClient && (
           <div className="mb-6">
-            <p className="text-sm font-medium text-gray-700 mb-2">Continue with Google</p>
-            <div ref={googleBtnRef} className="flex justify-center min-h-[44px]" />
-            <p className="text-xs text-gray-500 mt-2 text-center">
-              Only addresses listed in <code className="text-gray-600">ADMIN_GOOGLE_EMAILS</code> on the server
-              are allowed.
+            <p className="mb-2 text-sm font-medium text-slate-700">Continue with Google</p>
+            <div ref={googleBtnRef} className="flex min-h-[44px] justify-center" />
+            <p className="mt-2 text-center text-xs text-slate-500">
+              Only emails in <code className="text-slate-600">ADMIN_GOOGLE_EMAILS</code> are allowed.
             </p>
           </div>
         )}
@@ -332,15 +355,15 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
         {status.jwtConfigured && showPasswordLogin && (
           <>
             {googleReadyOnClient && (
-              <div className="flex items-center gap-3 mb-6 text-gray-400 text-sm">
-                <span className="flex-1 border-t border-gray-200" />
+              <div className="mb-6 flex items-center gap-3 text-sm text-slate-400">
+                <span className="flex-1 border-t border-slate-200" />
                 or password
-                <span className="flex-1 border-t border-gray-200" />
+                <span className="flex-1 border-t border-slate-200" />
               </div>
             )}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700">
                   Password
                 </label>
                 <input
@@ -348,21 +371,30 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
                   id="password"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 bg-white"
-                  placeholder="Admin password"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                  placeholder="••••••••"
                   autoComplete="current-password"
+                  disabled={authBusy}
                 />
               </div>
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                <div className="rounded-xl border border-red-200 bg-red-50/90 px-4 py-3 text-sm text-red-800">
                   {error}
                 </div>
               )}
               <button
                 type="submit"
-                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg"
+                disabled={authBusy || !loginPassword}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-600/25 transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Sign in
+                {isLoggingIn ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Signing in…
+                  </>
+                ) : (
+                  'Sign in'
+                )}
               </button>
             </form>
             {status.needsPasswordSetup && status.legacyEnvLoginAvailable && showLegacyLogin && (
@@ -372,7 +404,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
                   setShowLegacyLogin(false)
                   setError('')
                 }}
-                className="mt-3 w-full text-sm text-gray-600 hover:text-gray-800"
+                className="mt-3 w-full text-sm text-slate-600 hover:text-slate-900"
               >
                 Back to initial setup
               </button>
@@ -381,15 +413,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
         )}
 
         {error && !(status.jwtConfigured && showPasswordLogin) && (
-          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50/90 px-4 py-3 text-sm text-red-800">
             {error}
           </div>
         )}
 
-        <p className="mt-6 text-xs text-gray-500 text-center leading-relaxed">
-          Passwords are stored as bcrypt hashes in Postgres. <code className="text-gray-600">JWT_SECRET</code>{' '}
-          stays on the server for signing sessions. Optional Google sign-in uses Google&apos;s ID token, verified
-          on the API.
+        <p className="mt-6 text-center text-[11px] leading-relaxed text-slate-500">
+          Sessions use signed JWTs (<code className="text-slate-600">JWT_SECRET</code> on the server). Passwords are
+          bcrypt hashes in Postgres.
         </p>
       </div>
     </div>

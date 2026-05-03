@@ -1,11 +1,21 @@
 import { useState } from 'react'
-import { CheckCircle, XCircle, Edit, Trash2, Eye } from 'lucide-react'
+import {
+  CheckCircle,
+  XCircle,
+  Edit,
+  Trash2,
+  Eye,
+  LogOut,
+  ShieldCheck,
+  Loader2,
+} from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDataCenters } from '@/hooks/useDataCenters'
 import { dataCenterApi } from '@/services/api'
 import type { DataCenter } from '@/types'
 import toast from 'react-hot-toast'
 import axios from 'axios'
+import { useAdminSession } from '@/contexts/AdminSessionContext'
 
 function toastApiError(err: unknown, fallback: string) {
   if (axios.isAxiosError(err)) {
@@ -16,7 +26,18 @@ function toastApiError(err: unknown, fallback: string) {
   toast.error(fallback)
 }
 
+function TableShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-slate-200/90 bg-white shadow-sm ring-1 ring-slate-950/5">
+      <div className="max-h-[min(70vh,560px)] overflow-auto">
+        <table className="min-w-[720px] w-full divide-y divide-slate-200">{children}</table>
+      </div>
+    </div>
+  )
+}
+
 export default function Admin() {
+  const session = useAdminSession()
   const queryClient = useQueryClient()
   const { data: dataCenters, isLoading } = useDataCenters()
   const [selectedDC, setSelectedDC] = useState<DataCenter | null>(null)
@@ -42,314 +63,300 @@ export default function Admin() {
     onError: (err) => toastApiError(err, 'Delete failed'),
   })
 
-  const handleVerify = (dc: DataCenter) => {
-    verifyMutation.mutate(dc.id)
-  }
-
+  const handleVerify = (dc: DataCenter) => verifyMutation.mutate(dc.id)
   const handleReject = (dc: DataCenter) => {
-    if (
-      !confirm(
-        `Reject and permanently delete "${dc.name}"? This cannot be undone.`
-      )
-    ) {
-      return
-    }
+    if (!confirm(`Reject and permanently delete "${dc.name}"? This cannot be undone.`)) return
     deleteMutation.mutate(dc.id)
   }
-
   const handleEdit = (dc: DataCenter) => {
     setSelectedDC(dc)
     setShowModal(true)
   }
-
   const handleDelete = (dc: DataCenter) => {
-    if (!confirm(`Permanently delete "${dc.name}"? This cannot be undone.`)) {
-      return
-    }
+    if (!confirm(`Permanently delete "${dc.name}"? This cannot be undone.`)) return
     deleteMutation.mutate(dc.id)
   }
 
   if (isLoading) {
     return (
-      <div className="h-full flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      <div className="flex h-full items-center justify-center bg-slate-100/80">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
       </div>
     )
   }
 
   const unverifiedDataCenters =
     dataCenters?.filter((dc) => !dc.sources.every((s) => s.verified)) || []
-
   const busy = verifyMutation.isPending || deleteMutation.isPending
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-50">
-      <div className="p-8 max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Review and verify data center submissions</p>
+    <div className="flex h-full flex-col overflow-hidden bg-gradient-to-b from-slate-100 to-slate-50">
+      <header className="shrink-0 border-b border-slate-200/90 bg-white/90 px-6 py-4 shadow-sm backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-500/15 ring-1 ring-primary-500/20">
+              <ShieldCheck className="h-5 w-5 text-primary-600" aria-hidden />
+            </div>
+            <div className="min-w-0">
+              <h1 className="truncate text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
+                Admin dashboard
+              </h1>
+              <p className="truncate text-sm text-slate-600">Verify sources and manage records</p>
+            </div>
+          </div>
+          {session && (
+            <button
+              type="button"
+              onClick={session.logout}
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+            >
+              <LogOut className="h-4 w-4 opacity-70" />
+              Log out
+            </button>
+          )}
         </div>
+      </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Total Data Centers</p>
-            <p className="text-3xl font-bold text-gray-900">{dataCenters?.length || 0}</p>
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm ring-1 ring-slate-950/5">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Total</p>
+              <p className="mt-1 text-3xl font-semibold tabular-nums text-slate-900">
+                {dataCenters?.length || 0}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-amber-200/60 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm ring-1 ring-amber-500/10">
+              <p className="text-xs font-medium uppercase tracking-wide text-amber-800/80">Pending review</p>
+              <p className="mt-1 text-3xl font-semibold tabular-nums text-amber-700">
+                {unverifiedDataCenters.length}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-emerald-200/60 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm ring-1 ring-emerald-500/10">
+              <p className="text-xs font-medium uppercase tracking-wide text-emerald-800/80">Verified</p>
+              <p className="mt-1 text-3xl font-semibold tabular-nums text-emerald-700">
+                {(dataCenters?.length || 0) - unverifiedDataCenters.length}
+              </p>
+            </div>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Pending Review</p>
-            <p className="text-3xl font-bold text-orange-600">{unverifiedDataCenters.length}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <p className="text-sm text-gray-600 mb-1">Verified</p>
-            <p className="text-3xl font-bold text-green-600">
-              {(dataCenters?.length || 0) - unverifiedDataCenters.length}
-            </p>
-          </div>
-        </div>
 
-        {unverifiedDataCenters.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Pending Review</h2>
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+          {unverifiedDataCenters.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-base font-semibold text-slate-900">Pending review</h2>
+              <TableShell>
+                <thead className="sticky top-0 z-[1] bg-slate-50/95 backdrop-blur-sm">
                   <tr>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                      style={{ width: '30%' }}
-                    >
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Name
                     </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                      style={{ width: '20%' }}
-                    >
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Operator
                     </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                      style={{ width: '20%' }}
-                    >
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Location
                     </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                      style={{ minWidth: '180px' }}
-                    >
+                    <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Status
                     </th>
-                    <th
-                      className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"
-                      style={{ width: '120px' }}
-                    >
+                    <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="divide-y divide-slate-100 bg-white">
                   {unverifiedDataCenters.map((dc) => (
-                    <tr key={dc.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900 truncate" title={dc.name}>
+                    <tr key={dc.id} className="transition-colors hover:bg-slate-50/80">
+                      <td className="max-w-[200px] px-4 py-3">
+                        <div className="truncate font-medium text-slate-900" title={dc.name}>
                           {dc.name}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        <div className="truncate" title={dc.operator}>
+                      <td className="max-w-[160px] px-4 py-3">
+                        <div className="truncate text-sm text-slate-600" title={dc.operator}>
                           {dc.operator}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        <div className="truncate">
+                      <td className="max-w-[140px] px-4 py-3">
+                        <div className="truncate text-sm text-slate-600" title={`${dc.city}, ${dc.country}`}>
                           {dc.city}, {dc.country}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 capitalize whitespace-nowrap">
+                      <td className="whitespace-nowrap px-4 py-3">
+                        <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-900 capitalize">
                           {dc.status.replace('-', ' ')}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end gap-2">
+                      <td className="whitespace-nowrap px-4 py-3 text-right">
+                        <div className="flex justify-end gap-1">
                           <button
                             type="button"
                             onClick={() => handleEdit(dc)}
                             disabled={busy}
-                            className="text-blue-600 hover:text-blue-900 disabled:opacity-50"
-                            title="View/Edit"
+                            className="rounded-lg p-2 text-primary-600 transition hover:bg-primary-50 disabled:opacity-50"
+                            title="View"
                           >
-                            <Eye size={18} />
+                            <Eye className="h-4 w-4" />
                           </button>
                           <button
                             type="button"
                             onClick={() => handleVerify(dc)}
                             disabled={busy}
-                            className="text-green-600 hover:text-green-900 disabled:opacity-50"
-                            title="Verify all sources"
+                            className="rounded-lg p-2 text-emerald-600 transition hover:bg-emerald-50 disabled:opacity-50"
+                            title="Verify sources"
                           >
-                            <CheckCircle size={18} />
+                            {verifyMutation.isPending && verifyMutation.variables === dc.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4" />
+                            )}
                           </button>
                           <button
                             type="button"
                             onClick={() => handleReject(dc)}
                             disabled={busy}
-                            className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                            className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                             title="Reject and delete"
                           >
-                            <XCircle size={18} />
+                            <XCircle className="h-4 w-4" />
                           </button>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+              </TableShell>
+            </section>
+          )}
 
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">All Data Centers</h2>
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+          <section>
+            <h2 className="mb-3 text-base font-semibold text-slate-900">All data centers</h2>
+            <TableShell>
+              <thead className="sticky top-0 z-[1] bg-slate-50/95 backdrop-blur-sm">
                 <tr>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                    style={{ width: '28%' }}
-                  >
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Name
                   </th>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                    style={{ width: '18%' }}
-                  >
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Operator
                   </th>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                    style={{ width: '18%' }}
-                  >
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Location
                   </th>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                    style={{ minWidth: '180px' }}
-                  >
+                  <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Status
                   </th>
-                  <th
-                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase"
-                    style={{ width: '100px' }}
-                  >
+                  <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Verified
                   </th>
-                  <th
-                    className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase"
-                    style={{ width: '120px' }}
-                  >
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-slate-100 bg-white">
                 {dataCenters?.map((dc) => (
-                  <tr key={dc.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900 truncate" title={dc.name}>
+                  <tr key={dc.id} className="transition-colors hover:bg-slate-50/80">
+                    <td className="max-w-[200px] px-4 py-3">
+                      <div className="truncate font-medium text-slate-900" title={dc.name}>
                         {dc.name}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      <div className="truncate" title={dc.operator}>
+                    <td className="max-w-[160px] px-4 py-3">
+                      <div className="truncate text-sm text-slate-600" title={dc.operator}>
                         {dc.operator}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      <div className="truncate">
+                    <td className="max-w-[140px] px-4 py-3">
+                      <div className="truncate text-sm text-slate-600">
                         {dc.city}, {dc.country}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 capitalize whitespace-nowrap">
+                    <td className="whitespace-nowrap px-4 py-3">
+                      <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-800 capitalize">
                         {dc.status.replace('-', ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-4 py-3 text-center">
                       {dc.sources.every((s) => s.verified) ? (
-                        <CheckCircle size={18} className="text-green-500 inline-block" />
+                        <CheckCircle className="inline-block h-5 w-5 text-emerald-500" aria-label="Verified" />
                       ) : (
-                        <XCircle size={18} className="text-gray-300 inline-block" />
+                        <XCircle className="inline-block h-5 w-5 text-slate-300" aria-label="Not verified" />
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end gap-2">
+                    <td className="whitespace-nowrap px-4 py-3 text-right">
+                      <div className="flex justify-end gap-1">
                         <button
                           type="button"
                           onClick={() => handleEdit(dc)}
                           disabled={busy}
-                          className="text-blue-600 hover:text-blue-900 disabled:opacity-50"
+                          className="rounded-lg p-2 text-primary-600 transition hover:bg-primary-50 disabled:opacity-50"
                           title="Edit"
                         >
-                          <Edit size={18} />
+                          <Edit className="h-4 w-4" />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDelete(dc)}
                           disabled={busy}
-                          className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                          className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                           title="Delete"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </TableShell>
+          </section>
         </div>
       </div>
 
       {showModal && selectedDC && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-4">{selectedDC.name}</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+            aria-label="Close"
+            onClick={() => setShowModal(false)}
+          />
+          <div className="relative max-h-[min(90vh,640px)] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200/90 bg-white p-6 shadow-2xl ring-1 ring-slate-950/10 sm:p-8">
+            <h2 className="text-xl font-semibold text-slate-900">{selectedDC.name}</h2>
 
-            <div className="space-y-4">
+            <div className="mt-4 space-y-4 text-sm">
               <div>
-                <h3 className="font-medium mb-2">Basic Information</h3>
-                <p className="text-sm text-gray-600">Operator: {selectedDC.operator}</p>
-                <p className="text-sm text-gray-600">
+                <h3 className="mb-1 font-medium text-slate-800">Basics</h3>
+                <p className="text-slate-600">Operator: {selectedDC.operator}</p>
+                <p className="text-slate-600">
                   Location: {selectedDC.city}, {selectedDC.country}
                 </p>
-                <p className="text-sm text-gray-600">Status: {selectedDC.status}</p>
+                <p className="text-slate-600">Status: {selectedDC.status}</p>
               </div>
 
               <div>
-                <h3 className="font-medium mb-2">Sources</h3>
+                <h3 className="mb-2 font-medium text-slate-800">Sources</h3>
                 {selectedDC.sources.map((source, idx) => (
-                  <div key={idx} className="text-sm text-gray-600 mb-2">
+                  <div key={idx} className="mb-2 text-slate-600">
                     <a
                       href={source.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
+                      className="font-medium text-primary-600 hover:underline"
                     >
                       {source.name}
                     </a>
-                    {source.verified && <span className="ml-2 text-green-600">✓ Verified</span>}
+                    {source.verified && <span className="ml-2 text-emerald-600">Verified</span>}
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-6 flex gap-2 justify-end">
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg"
+                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 Close
               </button>
@@ -360,7 +367,7 @@ export default function Admin() {
                   handleVerify(selectedDC)
                   setShowModal(false)
                 }}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50"
+                className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 disabled:opacity-50"
               >
                 Verify sources
               </button>

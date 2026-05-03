@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Filter } from 'lucide-react'
+import { X, Filter, SlidersHorizontal } from 'lucide-react'
 import type { FilterOptions } from '@/types'
 
 interface FilterPanelProps {
@@ -21,16 +21,16 @@ export default function FilterPanel({ onFilterChange, availableFilters }: Filter
   })
 
   const handleFilterChange = (key: keyof FilterOptions, value: string, checked: boolean) => {
-    setFilters(prev => {
+    setFilters((prev) => {
       const newFilters = { ...prev }
       const array = (newFilters[key] as string[]) || []
-      
+
       if (checked) {
         newFilters[key] = [...array, value] as any
       } else {
-        newFilters[key] = array.filter(v => v !== value) as any
+        newFilters[key] = array.filter((v) => v !== value) as any
       }
-      
+
       onFilterChange(newFilters)
       return newFilters
     })
@@ -50,98 +50,108 @@ export default function FilterPanel({ onFilterChange, availableFilters }: Filter
   if (!isOpen) {
     return (
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
-        className="absolute top-4 left-4 z-10 bg-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow flex items-center gap-2"
+        className="absolute left-4 top-4 z-10 flex items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/95 px-4 py-2.5 text-sm font-semibold text-slate-800 shadow-lg shadow-slate-900/10 ring-1 ring-slate-950/5 backdrop-blur-md transition hover:bg-white hover:shadow-xl"
       >
-        <Filter size={18} />
-        <span className="font-medium">Filters</span>
+        <SlidersHorizontal size={18} className="text-primary-600" />
+        Filters
       </button>
     )
   }
 
   return (
-    <div className="absolute top-4 left-4 z-10 w-80 bg-white rounded-lg shadow-xl overflow-hidden">
-      <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+    <div
+      className="absolute left-4 top-4 z-10 w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200/90 bg-white/95 shadow-xl shadow-slate-900/15 ring-1 ring-slate-950/5 backdrop-blur-md"
+      role="region"
+      aria-label="Map filters"
+    >
+      <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-4 py-3">
         <div className="flex items-center gap-2">
-          <Filter size={18} />
-          <h3 className="font-bold text-gray-900">Filters</h3>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-500/15">
+            <Filter size={16} className="text-primary-600" />
+          </div>
+          <h3 className="text-sm font-semibold tracking-tight text-slate-900">Filters</h3>
         </div>
         <button
+          type="button"
           onClick={() => setIsOpen(false)}
-          className="text-gray-500 hover:text-gray-700"
+          className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+          aria-label="Collapse filters"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
       </div>
 
-      <div className="p-4 max-h-[calc(100vh-200px)] overflow-y-auto space-y-4">
-        {/* Status Filter */}
+      <div className="max-h-[min(65vh,420px)] space-y-4 overflow-y-auto p-4">
         <div>
-          <h4 className="font-medium text-gray-900 mb-2">Status</h4>
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Status</h4>
           <div className="space-y-2">
-            {availableFilters.statuses.map(status => (
-              <label key={status} className="flex items-center gap-2 cursor-pointer">
+            {availableFilters.statuses.map((status) => (
+              <label
+                key={status}
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-slate-50"
+              >
                 <input
                   type="checkbox"
                   checked={filters.status?.includes(status) || false}
-                  onChange={e => handleFilterChange('status', status, e.target.checked)}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  onChange={(e) => handleFilterChange('status', status, e.target.checked)}
+                  className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                 />
-                <span className="text-sm text-gray-700 capitalize">
-                  {status.replace('-', ' ')}
-                </span>
+                <span className="text-sm capitalize text-slate-700">{status.replace('-', ' ')}</span>
               </label>
             ))}
           </div>
         </div>
 
-        {/* Ownership Type Filter */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-2">Ownership</h4>
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Ownership</h4>
           <div className="space-y-2">
-            {['local', 'foreign', 'joint-venture'].map(type => (
-              <label key={type} className="flex items-center gap-2 cursor-pointer">
+            {['local', 'foreign', 'joint-venture'].map((type) => (
+              <label
+                key={type}
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-slate-50"
+              >
                 <input
                   type="checkbox"
                   checked={filters.ownershipType?.includes(type) || false}
-                  onChange={e => handleFilterChange('ownershipType', type, e.target.checked)}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  onChange={(e) => handleFilterChange('ownershipType', type, e.target.checked)}
+                  className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                 />
-                <span className="text-sm text-gray-700 capitalize">
-                  {type.replace('-', ' ')}
-                </span>
+                <span className="text-sm capitalize text-slate-700">{type.replace('-', ' ')}</span>
               </label>
             ))}
           </div>
         </div>
 
-        {/* Country Filter */}
         <div>
-          <h4 className="font-medium text-gray-900 mb-2">Country</h4>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {availableFilters.countries.map(country => (
-              <label key={country} className="flex items-center gap-2 cursor-pointer">
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Country</h4>
+          <div className="max-h-36 space-y-2 overflow-y-auto pr-1">
+            {availableFilters.countries.map((country) => (
+              <label
+                key={country}
+                className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 transition hover:bg-slate-50"
+              >
                 <input
                   type="checkbox"
                   checked={filters.country?.includes(country) || false}
-                  onChange={e => handleFilterChange('country', country, e.target.checked)}
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  onChange={(e) => handleFilterChange('country', country, e.target.checked)}
+                  className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                 />
-                <span className="text-sm text-gray-700">{country}</span>
+                <span className="text-sm text-slate-700">{country}</span>
               </label>
             ))}
           </div>
         </div>
 
-        {/* Clear Filters Button */}
         <button
+          type="button"
           onClick={clearFilters}
-          className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors font-medium"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
         >
-          Clear All Filters
+          Clear all
         </button>
       </div>
     </div>
   )
 }
-

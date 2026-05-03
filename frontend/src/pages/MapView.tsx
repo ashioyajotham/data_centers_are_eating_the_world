@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { Download } from 'lucide-react'
 import Map from '@/components/Map'
 import FilterPanel from '@/components/FilterPanel'
+import { ExportMenu } from '@/components/ExportMenu'
 import DataCenterCard from '@/components/DataCenterCard'
 import { useDataCenters } from '@/hooks/useDataCenters'
 import { dataCenterApi } from '@/services/api'
@@ -86,45 +86,20 @@ export default function MapView() {
           availableFilters={availableFilters}
         />
 
-        {/* Export Button */}
-        <div className="absolute top-4 right-4 z-10">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <button
-              onClick={() => handleExport('geojson')}
-              className="px-4 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2 w-full text-gray-700"
-            >
-              <Download size={18} className="text-gray-600" />
-              <span className="font-medium">Export GeoJSON</span>
-            </button>
-            <button
-              onClick={() => handleExport('json')}
-              className="px-4 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2 w-full border-t border-gray-200 text-gray-700"
-            >
-              <Download size={18} className="text-gray-600" />
-              <span className="font-medium">Export JSON</span>
-            </button>
-            <button
-              onClick={() => handleExport('csv')}
-              className="px-4 py-2 hover:bg-gray-50 transition-colors flex items-center gap-2 w-full border-t border-gray-200 text-gray-700"
-            >
-              <Download size={18} className="text-gray-600" />
-              <span className="font-medium">Export CSV</span>
-            </button>
-          </div>
-        </div>
+        <ExportMenu onExport={handleExport} disabled={!dataCenters?.length} />
 
-        {/* Results Count */}
-        <div className="absolute bottom-4 left-4 z-10 bg-white px-4 py-2 rounded-lg shadow-lg">
-          <p className="text-sm text-gray-600">
-            Showing <span className="font-bold text-gray-900">{filteredDataCenters.length}</span> of{' '}
-            <span className="font-bold text-gray-900">{dataCenters?.length || 0}</span> data centers
+        <div className="absolute bottom-4 left-4 z-10 rounded-2xl border border-slate-200/90 bg-white/95 px-4 py-2.5 shadow-lg shadow-slate-900/10 ring-1 ring-slate-950/5 backdrop-blur-md">
+          <p className="text-sm text-slate-600">
+            Showing{' '}
+            <span className="font-semibold tabular-nums text-slate-900">{filteredDataCenters.length}</span> of{' '}
+            <span className="font-semibold tabular-nums text-slate-900">{dataCenters?.length || 0}</span> centers
           </p>
         </div>
       </div>
 
       {/* Detail Panel */}
       {selectedDataCenter && (
-        <div className="w-96 bg-white border-l border-gray-200 overflow-y-auto p-6">
+        <div className="w-full max-w-md shrink-0 overflow-y-auto border-l border-slate-200/90 bg-white/98 p-6 shadow-[inset_12px_0_24px_-12px_rgba(15,23,42,0.06)] lg:max-w-[26rem]">
           <DataCenterCard
             dataCenter={selectedDataCenter}
             onClick={() => {}}
