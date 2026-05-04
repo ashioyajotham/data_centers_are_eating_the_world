@@ -6,6 +6,7 @@ import type {
   AuthStatus,
   IngestionCandidate,
   IngestionCandidateStatus,
+  PublicSuggestionPayload,
 } from '@/types'
 import { getAdminToken } from './authStorage'
 
@@ -96,6 +97,13 @@ export const dataCenterApi = {
 }
 
 export const ingestionApi = {
+  suggestPublic: async (
+    body: PublicSuggestionPayload
+  ): Promise<{ id: string; message: string }> => {
+    const { data } = await api.post<{ id: string; message: string }>('/ingestion/suggest', body)
+    return data
+  },
+
   listCandidates: async (status: IngestionCandidateStatus = 'pending'): Promise<IngestionCandidate[]> => {
     const { data } = await api.get<IngestionCandidate[]>(`/ingestion/candidates`, {
       params: { status },

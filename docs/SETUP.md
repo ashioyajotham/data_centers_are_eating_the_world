@@ -171,6 +171,17 @@ npm run dev
 
 ## Running the Scrapers
 
+### GitHub Actions (production)
+
+Add repository secret **`DATABASE_URL`** (Postgres connection string). Optional: **`USER_AGENT`** for HTTP harvesters.
+
+| Workflow | Schedule (UTC) | Purpose |
+|----------|----------------|---------|
+| `db-migrate.yml` | Daily **06:00** | Run `npm run db:migrate` — pending migrations only; safe to repeat. |
+| `scraper.yml` | Daily **03:00** | Run `python main.py` — curated catalogue + harvest → `ingestion_candidates`. |
+
+Migrations change **schema**; the scraper refreshes **data**. They are independent jobs.
+
 ### Manual Run
 
 ```bash

@@ -3,6 +3,7 @@ import Layout from './components/Layout'
 import MapView from './pages/MapView'
 import Dashboard from './pages/Dashboard'
 import About from './pages/About'
+import SuggestFacility from './pages/SuggestFacility'
 import DataExplorer from './pages/DataExplorer'
 import Admin from './pages/Admin'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -14,6 +15,7 @@ function App() {
         <Route index element={<MapView />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="explorer" element={<DataExplorer />} />
+        <Route path="suggest" element={<SuggestFacility />} />
         <Route path="about" element={<About />} />
         <Route 
           path="admin" 

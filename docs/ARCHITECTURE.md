@@ -5,6 +5,7 @@
 
 - **Tier A — Curated catalogue:** `scraper/data/kenya_curated.json` (preferred) or the inline fallback in `manual_data_scraper.py`. The pipeline **upserts published** `data_centers` rows (`verified = true`) and trusted sources.
 - **Tier B/C — Harvesters:** `DataCenterMap.com`, `Datacenters.com`, and `osm_kenya` (stub) produce **candidates only** in `ingestion_candidates` until an admin approves them in the dashboard (or via `/api/ingestion/*`).
+- **Tier E — Public suggest:** `POST /api/ingestion/suggest` and the **Suggest** page queue the same `ingestion_candidates` table (`source_system = public_submission`). Optional **Resend** email to `ADMIN_NOTIFY_EMAIL` when configured on the API.
 - **Public API / map:** Without an admin JWT, list/geojson/export/statistics only include **published** facilities.
 
 See `docs/API.md` (authentication) and `npm run db:migrate` in `docs/SETUP.md` for the `ingestion_candidates` table.

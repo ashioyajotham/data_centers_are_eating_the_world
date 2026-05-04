@@ -1,0 +1,38 @@
+# Runs pending SQL migrations against Postgres (idempotent).
+# Safe daily: already-applied files in schema_migrations are skipped.
+# Requires repo secret: DATABASE_URL (same as scraper).
+name: Database migrate
+
+on:
+  schedule:
+    # Daily 06:00 UTC — adjust if you prefer another quiet window
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run db:migrate
+        working-directory: backend
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "db:migrate failed — check logs and DATABASE_URL secret."

@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { query } from '../db/connection'
 import { DataCenterModel, type DataCenter } from './DataCenter'
 
@@ -56,6 +57,86 @@ export class IngestionCandidateModel {
     const result = await query(`SELECT * FROM ingestion_candidates WHERE id = $1`, [id])
     if (result.rows.length === 0) return null
     return this.mapRow(result.rows[0])
+  }
+
+  /** Tier E — public web form; staged as pending until admin approves. */
+  static async createFromPublicSubmission(input: {
+    name: string
+    operator: string
+    address: string
+    city: string
+    country: string
+    latitude: number
+    longitude: number
+    status: string
+    ownership_type: string
+    sourceUrl: string
+    sourceName?: string
+    year_established?: number | null
+    power_mw?: number | null
+    submitterEmail?: string
+    submitterName?: string
+    notes?: string
+  }): Promise<IngestionCandidate> {
+    const externalId = randomUUID()
+    const scrapedAt = new Date().toISOString()
+    const sources = [
+      {
+        url: input.sourceUrl,
+        name: input.sourceName?.trim() || 'Submitter-provided reference',
+        scraped_at: scrapedAt,
+        verified: false,
+      },
+    ]
+
+    const candidatePayload: Record<string, unknown> = {
+      name: input.name,
+      operator: input.operator,
+      address: input.address,
+      city: input.city,
+      country: input.country,
+      latitude: input.latitude,
+      longitude: input.longitude,
+      status: input.status,
+      ownership_type: input.ownership_type,
+      capacity:
+        input.power_mw != null && Number.isFinite(input.power_mw)
+          ? { power_mw: input.power_mw }
+          : {},
+      year_established: input.year_established ?? null,
+      sources,
+    }
+
+    const rawPayload: Record<string, unknown> = {
+      submitterEmail: input.submitterEmail ?? null,
+      submitterName: input.submitterName ?? null,
+      notes: input.notes ?? null,
+      tier: 'public_submission',
+    }
+
+    const sourceUrls = [input.sourceUrl]
+
+    const ins = await query(
+      `
+      INSERT INTO ingestion_candidates (
+        status, source_system, external_id, country_scope,
+        candidate_payload, raw_payload, source_urls, confidence
+      ) VALUES (
+        'pending', 'public_submission', $1, $2,
+        $3::jsonb, $4::jsonb, $5::text[], 35
+      )
+      RETURNING *
+    `,
+      [
+        externalId,
+        input.country,
+        JSON.stringify(candidatePayload),
+        JSON.stringify(rawPayload),
+        sourceUrls,
+      ]
+    )
+
+    return this.mapRow(ins.rows[0])
   }
 
   static async approve(id: string, note?: string): Promise<{ candidate: IngestionCandidate; dataCenter: DataCenter }> {

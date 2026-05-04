@@ -106,3 +106,24 @@ export interface IngestionCandidate {
   resolvedAt: string | null
 }
 
+export interface PublicSuggestionPayload {
+  name: string
+  operator: string
+  address: string
+  city: string
+  country: string
+  latitude: number
+  longitude: number
+  status: 'operational' | 'planned' | 'under-construction' | 'decommissioned'
+  ownershipType: 'local' | 'foreign' | 'joint-venture'
+  sourceUrl: string
+  sourceName?: string
+  yearEstablished?: number
+  powerMw?: number
+  submitterEmail?: string
+  submitterName?: string
+  notes?: string
+  /** Honeypot — must stay empty */
+  website?: string
+}
+

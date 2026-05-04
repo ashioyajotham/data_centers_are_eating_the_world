@@ -69,6 +69,33 @@ Content-Type: application/json
 {"existingDataCenterId":"<uuid>","note":"optional"}
 ```
 
+### Public suggestion (Tier E, no auth)
+
+Rate-limited. Queues `ingestion_candidates` with `source_system` = `public_submission`. Optional email to admins when Resend env vars are set.
+
+```http
+POST /ingestion/suggest
+Content-Type: application/json
+
+{
+  "name": "Example DC",
+  "operator": "Example Ltd",
+  "address": "Industrial Rd",
+  "city": "Nairobi",
+  "country": "Kenya",
+  "latitude": -1.29,
+  "longitude": 36.82,
+  "status": "operational",
+  "ownershipType": "local",
+  "sourceUrl": "https://example.com/press-release",
+  "sourceName": "Optional label",
+  "submitterEmail": "optional@example.com",
+  "notes": "optional"
+}
+```
+
+Honeypot: include hidden field `website`; if non-empty, request is discarded silently (anti-spam).
+
 ### Status (no auth)
 
 ```http

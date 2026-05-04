@@ -11,6 +11,9 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 3001
 
+// So rate limits and req.ip are correct behind Render / proxies
+app.set('trust proxy', 1)
+
 const frontendOrigins = process.env.FRONTEND_ORIGIN
   ? process.env.FRONTEND_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
   : ['http://localhost:5173', 'http://127.0.0.1:5173']

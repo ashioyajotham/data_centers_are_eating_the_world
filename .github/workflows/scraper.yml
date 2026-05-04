@@ -2,8 +2,8 @@ name: Run Data Center Scraper
 
 on:
   schedule:
-    # Run every Monday at 2 AM UTC
-    - cron: '0 2 * * 1'
+    # Daily 03:00 UTC — data refresh (curated + harvest → candidates). Schema = db-migrate workflow.
+    - cron: '0 3 * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:

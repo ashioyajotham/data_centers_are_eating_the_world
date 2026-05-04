@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Map, BarChart3, Database, Info, Shield } from 'lucide-react'
+import { Map, BarChart3, Database, Info, Shield, Send } from 'lucide-react'
 import clsx from 'clsx'
 
 export default function Layout() {
@@ -9,6 +9,7 @@ export default function Layout() {
     { name: 'Map', href: '/', icon: Map },
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Explorer', href: '/explorer', icon: Database },
+    { name: 'Suggest', href: '/suggest', icon: Send },
     { name: 'About', href: '/about', icon: Info },
     { name: 'Admin', href: '/admin', icon: Shield },
   ]
