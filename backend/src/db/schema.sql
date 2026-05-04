@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS data_centers (
     tier_rating VARCHAR(20),
     certifications TEXT[],
     connectivity TEXT[],
+    verified BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -51,6 +52,30 @@ CREATE INDEX IF NOT EXISTS idx_data_centers_country ON data_centers(country);
 CREATE INDEX IF NOT EXISTS idx_data_centers_status ON data_centers(status);
 CREATE INDEX IF NOT EXISTS idx_data_centers_ownership ON data_centers(ownership_type);
 CREATE INDEX IF NOT EXISTS idx_sources_data_center ON sources(data_center_id);
+CREATE INDEX IF NOT EXISTS idx_data_centers_verified ON data_centers (verified);
+
+-- Harvested rows awaiting admin promotion (Tier B+; Kenya-focused in application layer)
+CREATE TABLE IF NOT EXISTS ingestion_candidates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    status VARCHAR(32) NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'approved', 'rejected', 'duplicate')),
+    source_system VARCHAR(64) NOT NULL,
+    external_id TEXT NOT NULL,
+    country_scope VARCHAR(100) NOT NULL DEFAULT 'Kenya',
+    candidate_payload JSONB NOT NULL,
+    raw_payload JSONB,
+    source_urls TEXT[] NOT NULL DEFAULT '{}',
+    confidence SMALLINT NOT NULL DEFAULT 50 CHECK (confidence >= 0 AND confidence <= 100),
+    merged_data_center_id UUID REFERENCES data_centers(id) ON DELETE SET NULL,
+    resolution_note TEXT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP WITH TIME ZONE,
+    UNIQUE (source_system, external_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_ingestion_candidates_status ON ingestion_candidates (status);
+CREATE INDEX IF NOT EXISTS idx_ingestion_candidates_created ON ingestion_candidates (created_at DESC);
 
 -- Updated timestamp trigger
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -63,6 +88,11 @@ $$ language 'plpgsql';
 
 CREATE TRIGGER update_data_centers_updated_at
     BEFORE UPDATE ON data_centers
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_ingestion_candidates_updated_at
+    BEFORE UPDATE ON ingestion_candidates
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 

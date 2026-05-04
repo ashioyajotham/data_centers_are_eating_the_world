@@ -69,14 +69,23 @@ CREATE EXTENSION postgis;
 \q
 ```
 
-#### Run Migrations
+#### Run schema & migrations
 
 ```bash
 cd backend
 npm run db:setup
 ```
 
-### 5. Configure Environment Variables
+New databases get the full schema including **tiered ingestion** tables. **Existing Postgres** (e.g. production Neon): after pulling updates, apply incremental migrations:
+
+```bash
+cd backend
+npm run db:migrate
+```
+
+Re-run **`npm run db:setup`** (from repo root: `cd backend && npm run db:setup`) after pulling if the `admin_auth` table is new—then use the Admin page **Initial setup** in order to set the password (stored hashed in the DB).
+
+### 5. Configure Environment
 
 #### Backend Configuration
 
@@ -88,8 +97,6 @@ NODE_ENV=development
 JWT_SECRET=choose-a-long-random-secret
 # See backend/.env.example for Google sign-in, ADMIN_SETUP_TOKEN, optional legacy ADMIN_PASSWORD
 ```
-
-Re-run **`npm run db:setup`** (from repo root: `cd backend && npm run db:setup`) after pulling if the `admin_auth` table is new—then use the Admin page **Initial setup** to set the password (stored hashed in the DB).
 
 See `backend/.env.example` for optional variables.
 

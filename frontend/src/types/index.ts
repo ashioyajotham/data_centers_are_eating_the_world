@@ -22,6 +22,8 @@ export interface DataCenter {
     certifications?: string[]
     connectivity?: string[]
   }
+  /** When false, hidden from public map until re-published (admin sees all). */
+  verified?: boolean
 }
 
 export interface Source {
@@ -83,5 +85,24 @@ export interface AuthStatus {
   setupRequiresToken: boolean
   /** True when the DB has not been migrated with `admin_auth` yet (production deploy). */
   migrationRequired?: boolean
+}
+
+export type IngestionCandidateStatus = 'pending' | 'approved' | 'rejected' | 'duplicate'
+
+export interface IngestionCandidate {
+  id: string
+  status: IngestionCandidateStatus
+  sourceSystem: string
+  externalId: string
+  countryScope: string
+  candidatePayload: Record<string, unknown>
+  rawPayload: Record<string, unknown> | null
+  sourceUrls: string[]
+  confidence: number
+  mergedDataCenterId: string | null
+  resolutionNote: string | null
+  createdAt: string
+  updatedAt: string
+  resolvedAt: string | null
 }
 

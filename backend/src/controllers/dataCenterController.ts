@@ -4,7 +4,9 @@ import { stringify } from 'csv-stringify/sync'
 
 export const getAllDataCenters = async (req: Request, res: Response) => {
   try {
-    const dataCenters = await DataCenterModel.findAll()
+    const dataCenters = req.adminAuth
+      ? await DataCenterModel.findAll()
+      : await DataCenterModel.findAllPublished()
     res.json(dataCenters)
   } catch (error) {
     console.error('Error fetching data centers:', error)
@@ -15,7 +17,9 @@ export const getAllDataCenters = async (req: Request, res: Response) => {
 export const getDataCenterById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params
-    const dataCenter = await DataCenterModel.findById(id)
+    const dataCenter = await DataCenterModel.findById(id, {
+      includeUnpublished: Boolean(req.adminAuth),
+    })
     
     if (!dataCenter) {
       return res.status(404).json({ error: 'Data center not found' })
@@ -30,7 +34,9 @@ export const getDataCenterById = async (req: Request, res: Response) => {
 
 export const getGeoJSON = async (req: Request, res: Response) => {
   try {
-    const dataCenters = await DataCenterModel.findAll()
+    const dataCenters = req.adminAuth
+      ? await DataCenterModel.findAll()
+      : await DataCenterModel.findAllPublished()
     
     const geoJSON = {
       type: 'FeatureCollection',
@@ -54,7 +60,9 @@ export const getGeoJSON = async (req: Request, res: Response) => {
 export const exportData = async (req: Request, res: Response) => {
   try {
     const { format } = req.params
-    const dataCenters = await DataCenterModel.findAll()
+    const dataCenters = req.adminAuth
+      ? await DataCenterModel.findAll()
+      : await DataCenterModel.findAllPublished()
 
     switch (format) {
       case 'json':

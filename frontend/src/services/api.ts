@@ -4,6 +4,8 @@ import type {
   GeoJSONFeatureCollection,
   Statistics,
   AuthStatus,
+  IngestionCandidate,
+  IngestionCandidateStatus,
 } from '@/types'
 import { getAdminToken } from './authStorage'
 
@@ -90,6 +92,36 @@ export const dataCenterApi = {
 
   delete: async (id: string): Promise<void> => {
     await api.delete(`/datacenters/${id}`)
+  },
+}
+
+export const ingestionApi = {
+  listCandidates: async (status: IngestionCandidateStatus = 'pending'): Promise<IngestionCandidate[]> => {
+    const { data } = await api.get<IngestionCandidate[]>(`/ingestion/candidates`, {
+      params: { status },
+    })
+    return data
+  },
+
+  approveCandidate: async (
+    id: string,
+    body?: { note?: string }
+  ): Promise<{ candidate: IngestionCandidate; dataCenter: DataCenter }> => {
+    const { data } = await api.patch(`/ingestion/candidates/${id}/approve`, body ?? {})
+    return data
+  },
+
+  rejectCandidate: async (id: string, body?: { note?: string }): Promise<IngestionCandidate> => {
+    const { data } = await api.patch(`/ingestion/candidates/${id}/reject`, body ?? {})
+    return data
+  },
+
+  markDuplicate: async (
+    id: string,
+    body: { existingDataCenterId: string; note?: string }
+  ): Promise<IngestionCandidate> => {
+    const { data } = await api.patch(`/ingestion/candidates/${id}/duplicate`, body)
+    return data
   },
 }
 

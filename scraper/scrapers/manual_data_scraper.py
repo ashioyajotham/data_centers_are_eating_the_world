@@ -1,34 +1,52 @@
 """
 Manual/Research-based data scraper
 Curated data from research and public sources
+
+Tier A (Kenya): prefer ``data/kenya_curated.json`` when present so the catalogue
+can be edited without changing Python. Otherwise the inline list below is used.
 """
 
+import json
+from pathlib import Path
 from typing import List, Dict, Any
 from .base_scraper import BaseScraper
+
+CURATED_REL_PATH = Path(__file__).resolve().parent.parent / "data" / "kenya_curated.json"
+
 
 class ManualDataScraper(BaseScraper):
     def __init__(self):
         super().__init__("Manual Research Data")
-    
+
+    def _hydrate_sources(self, records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        out: List[Dict[str, Any]] = []
+        for rec in records:
+            r = dict(rec)
+            sources = []
+            for s in r.get("sources") or []:
+                if isinstance(s, dict) and "scraped_at" in s:
+                    sources.append(s)
+                elif isinstance(s, dict) and s.get("url"):
+                    sources.append(self.create_source(s["url"], s.get("name") or "Source"))
+                else:
+                    continue
+            r["sources"] = sources
+            out.append(r)
+        return out
+
     def scrape(self) -> List[Dict[str, Any]]:
         """
-        Return curated data from research and public announcements
-        
-        This is a manual scraper that returns verified data from:
-        - Company announcements
-        - News articles
-        - Industry reports
-        
+        Return Tier A curated Kenya facilities.
+
         TO ADD MORE DATA:
-        1. Research data centers online
-        2. Find their location (use Google Maps for coordinates)
-        3. Add them to the list below
-        4. Run: python main.py
+        1. Edit ``scraper/data/kenya_curated.json`` (preferred), or the fallback list below
+        2. Run: python main.py
         """
-        
-        # Real Kenya data centers from research
-        # This is the PRIMARY source for curated data
-        # seed.ts only has 3 DCs for demo purposes
+        if CURATED_REL_PATH.is_file():
+            bundle = json.loads(CURATED_REL_PATH.read_text(encoding="utf-8"))
+            records = bundle.get("data_centers") or []
+            return self._hydrate_sources(records)
+
         data_centers = [
             # From seed.ts - moved here for centralization
             {
@@ -367,7 +385,7 @@ class ManualDataScraper(BaseScraper):
                 'longitude': 36.8831,
                 'status': 'operational',
                 'ownership_type': 'joint-venture',
-                'capacity': {'power_mw': None},  # 50kW per rack, total capacity TBD
+                'capacity': {},  # 50kW per rack, total capacity TBD; omit power_mw until known
                 'year_established': 2025,
                 'sources': [
                     self.create_source(

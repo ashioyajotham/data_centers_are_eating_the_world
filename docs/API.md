@@ -10,7 +10,11 @@ http://localhost:3001/api
 
 ## Authentication
 
-**Read-only endpoints** (`GET` on `/datacenters`, `/statistics`, exports) are public.
+**Published-only reads:** `GET /datacenters`, `/datacenters/geojson`, `/datacenters/export/*`, and `GET /statistics` return only **published** facilities (`data_centers.verified = true`) when called **without** an admin JWT (typical map and public dashboards).
+
+With `Authorization: Bearer <jwt>` (valid admin token), those same endpoints include **unpublished** rows as well, so the admin UI can see the full database state.
+
+**Admin-only reads:** `GET /ingestion/candidates` requires a JWT.
 
 **Mutating endpoints** require a JWT:
 
@@ -18,12 +22,52 @@ http://localhost:3001/api
 Authorization: Bearer <jwt>
 ```
 
-**Protected routes:**
+**Mutation routes:**
 
 - `POST /datacenters`
 - `PUT /datacenters/:id`
 - `DELETE /datacenters/:id`
 - `PATCH /datacenters/:id/sources/verify`
+- `PATCH /ingestion/candidates/:id/approve`
+- `PATCH /ingestion/candidates/:id/reject`
+- `PATCH /ingestion/candidates/:id/duplicate`
+
+**Admin read routes:**
+
+- `GET /ingestion/candidates`
+
+### Ingestion queue (admin, Kenya harvest pipeline)
+
+Harvested rows are staged in Postgres until approved:
+
+```http
+GET /ingestion/candidates?status=pending
+Authorization: Bearer <jwt>
+```
+
+```http
+PATCH /ingestion/candidates/:id/approve
+Authorization: Bearer <jwt>
+Content-Type: application/json
+
+{"note":"optional"}
+```
+
+```http
+PATCH /ingestion/candidates/:id/reject
+Authorization: Bearer <jwt>
+Content-Type: application/json
+
+{"note":"optional reason"}
+```
+
+```http
+PATCH /ingestion/candidates/:id/duplicate
+Authorization: Bearer <jwt>
+Content-Type: application/json
+
+{"existingDataCenterId":"<uuid>","note":"optional"}
+```
 
 ### Status (no auth)
 

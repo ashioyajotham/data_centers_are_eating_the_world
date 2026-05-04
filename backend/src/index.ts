@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import dataCenterRoutes from './routes/datacenters'
 import statisticsRoutes from './routes/statistics'
 import authRoutes from './routes/auth'
+import ingestionRoutes from './routes/ingestion'
 
 dotenv.config()
 
@@ -26,6 +27,7 @@ app.use(express.json())
 app.use('/api/auth', authRoutes)
 app.use('/api/datacenters', dataCenterRoutes)
 app.use('/api/statistics', statisticsRoutes)
+app.use('/api/ingestion', ingestionRoutes)
 
 // Health check
 app.get('/health', (req, res) => {

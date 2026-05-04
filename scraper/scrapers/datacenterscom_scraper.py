@@ -7,6 +7,10 @@ from typing import List, Dict, Any
 from .base_scraper import BaseScraper
 
 class DataCentersComScraper(BaseScraper):
+    """Tier B harvester (Kenya) — update selectors when the site changes."""
+
+    source_system = "datacenterscom"
+
     def __init__(self):
         super().__init__("Datacenters.com")
         self.base_url = "https://www.datacenters.com"

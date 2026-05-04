@@ -9,10 +9,10 @@ import {
   ShieldCheck,
   Loader2,
 } from 'lucide-react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useDataCenters } from '@/hooks/useDataCenters'
-import { dataCenterApi } from '@/services/api'
-import type { DataCenter } from '@/types'
+import { dataCenterApi, ingestionApi } from '@/services/api'
+import type { DataCenter, IngestionCandidate } from '@/types'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { useAdminSession } from '@/contexts/AdminSessionContext'
@@ -52,6 +52,32 @@ export default function Admin() {
     onError: (err) => toastApiError(err, 'Verification failed'),
   })
 
+  const { data: candidates = [], isLoading: candidatesLoading } = useQuery({
+    queryKey: ['ingestion', 'pending'],
+    queryFn: () => ingestionApi.listCandidates('pending'),
+  })
+
+  const approveCandidateMutation = useMutation({
+    mutationFn: (id: string) => ingestionApi.approveCandidate(id),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['ingestion'] })
+      queryClient.invalidateQueries({ queryKey: ['datacenters'] })
+      queryClient.invalidateQueries({ queryKey: ['statistics'] })
+      toast.success(`Published: ${res.dataCenter.name}`)
+    },
+    onError: (err) => toastApiError(err, 'Approve failed'),
+  })
+
+  const rejectCandidateMutation = useMutation({
+    mutationFn: ({ id, note }: { id: string; note?: string }) =>
+      ingestionApi.rejectCandidate(id, { note }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ingestion'] })
+      toast.success('Candidate rejected')
+    },
+    onError: (err) => toastApiError(err, 'Reject failed'),
+  })
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => dataCenterApi.delete(id),
     onSuccess: (_, id) => {
@@ -87,7 +113,11 @@ export default function Admin() {
 
   const unverifiedDataCenters =
     dataCenters?.filter((dc) => !dc.sources.every((s) => s.verified)) || []
-  const busy = verifyMutation.isPending || deleteMutation.isPending
+  const busy =
+    verifyMutation.isPending ||
+    deleteMutation.isPending ||
+    approveCandidateMutation.isPending ||
+    rejectCandidateMutation.isPending
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-gradient-to-b from-slate-100 to-slate-50">
@@ -119,7 +149,7 @@ export default function Admin() {
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm ring-1 ring-slate-950/5">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Total</p>
               <p className="mt-1 text-3xl font-semibold tabular-nums text-slate-900">
@@ -138,7 +168,106 @@ export default function Admin() {
                 {(dataCenters?.length || 0) - unverifiedDataCenters.length}
               </p>
             </div>
+            <div className="rounded-2xl border border-sky-200/60 bg-gradient-to-br from-sky-50 to-white p-5 shadow-sm ring-1 ring-sky-500/10">
+              <p className="text-xs font-medium uppercase tracking-wide text-sky-900/70">Harvest queue</p>
+              <p className="mt-1 text-3xl font-semibold tabular-nums text-sky-900">
+                {candidatesLoading ? '—' : candidates.length}
+              </p>
+              <p className="mt-1 text-xs text-sky-800/70">Kenya staging (Tier B/C)</p>
+            </div>
           </div>
+
+          {candidates.length > 0 && (
+            <section>
+              <h2 className="mb-3 text-base font-semibold text-slate-900">Harvest queue — review before map</h2>
+              <p className="mb-3 text-sm text-slate-600">
+                Automated harvesters stage rows here until you publish them to the live Kenya dataset.
+              </p>
+              <TableShell>
+                <thead className="sticky top-0 z-[1] bg-slate-50/95 backdrop-blur-sm">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Source
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Location
+                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Score
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {candidates.map((c: IngestionCandidate) => {
+                    const p = c.candidatePayload
+                    const name = typeof p.name === 'string' ? p.name : String(p.name ?? '—')
+                    const operator =
+                      typeof p.operator === 'string' ? p.operator : String(p.operator ?? '—')
+                    const city = typeof p.city === 'string' ? p.city : String(p.city ?? '—')
+                    const country =
+                      typeof p.country === 'string' ? p.country : String(p.country ?? 'Kenya')
+                    return (
+                      <tr key={c.id} className="transition-colors hover:bg-slate-50/80">
+                        <td className="max-w-[200px] px-4 py-3">
+                          <div className="truncate font-medium text-slate-900" title={name}>
+                            {name}
+                          </div>
+                          <div className="truncate text-xs text-slate-500" title={operator}>
+                            {operator}
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-600">
+                          {c.sourceSystem}
+                        </td>
+                        <td className="max-w-[140px] px-4 py-3 text-sm text-slate-600">
+                          {city}, {country}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-3 text-sm tabular-nums text-slate-600">
+                          {c.confidence}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-3 text-right">
+                          <div className="flex justify-end gap-1">
+                            <button
+                              type="button"
+                              onClick={() => approveCandidateMutation.mutate(c.id)}
+                              disabled={busy}
+                              className="rounded-lg p-2 text-emerald-600 transition hover:bg-emerald-50 disabled:opacity-50"
+                              title="Publish to map"
+                            >
+                              {approveCandidateMutation.isPending &&
+                              approveCandidateMutation.variables === c.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <CheckCircle className="h-4 w-4" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!confirm(`Reject staged row "${name}"?`)) return
+                                rejectCandidateMutation.mutate({ id: c.id })
+                              }}
+                              disabled={busy}
+                              className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                              title="Reject"
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </TableShell>
+            </section>
+          )}
 
           {unverifiedDataCenters.length > 0 && (
             <section>

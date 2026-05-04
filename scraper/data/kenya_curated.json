@@ -1,0 +1,428 @@
+{
+  "country_scope": "Kenya",
+  "description": "Tier A curated Kenya data centres. Prefer editing this file; falls back to inline list in manual_data_scraper.py if removed.",
+  "data_centers": [
+    {
+      "name": "Microsoft Azure East Africa Region",
+      "operator": "Microsoft Corporation",
+      "address": "Nairobi (Location TBD - $1B Investment with G42)",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.2921,
+      "longitude": 36.8219,
+      "status": "planned",
+      "ownership_type": "foreign",
+      "capacity": {
+        "power_mw": 50
+      },
+      "year_established": null,
+      "sources": [
+        {
+          "url": "https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies/",
+          "name": "Microsoft Azure Official"
+        }
+      ]
+    },
+    {
+      "name": "Wananchi Online Data Center",
+      "operator": "Wananchi Group",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.2745,
+      "longitude": 36.8015,
+      "status": "operational",
+      "ownership_type": "local",
+      "capacity": {
+        "power_mw": 2
+      },
+      "year_established": 2014,
+      "sources": [
+        {
+          "url": "https://www.wananchi.com",
+          "name": "Wananchi Group Official"
+        }
+      ]
+    },
+    {
+      "name": "East Africa Data Centre",
+      "operator": "Wingu.Africa",
+      "address": "Mombasa Road, Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.3167,
+      "longitude": 36.8851,
+      "status": "operational",
+      "ownership_type": "local",
+      "capacity": {
+        "power_mw": 6
+      },
+      "year_established": 2018,
+      "sources": [
+        {
+          "url": "https://wingu.africa",
+          "name": "Wingu.Africa Official"
+        }
+      ]
+    },
+    {
+      "name": "Liquid Intelligent Technologies Kenya",
+      "operator": "Liquid Intelligent Technologies",
+      "address": "Sameer Business Park, Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.315,
+      "longitude": 36.883,
+      "status": "operational",
+      "ownership_type": "foreign",
+      "capacity": {
+        "power_mw": 8
+      },
+      "year_established": 2019,
+      "sources": [
+        {
+          "url": "https://www.liquid.tech",
+          "name": "Liquid Intelligent Technologies Official"
+        }
+      ]
+    },
+    {
+      "name": "Kenya Data Networks (KDN) Data Center",
+      "operator": "Kenya Data Networks",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.285,
+      "longitude": 36.82,
+      "status": "operational",
+      "ownership_type": "local",
+      "capacity": {
+        "power_mw": 4
+      },
+      "year_established": 2016,
+      "sources": [
+        {
+          "url": "https://www.kdn.co.ke",
+          "name": "KDN Official"
+        }
+      ]
+    },
+    {
+      "name": "Telkom Kenya Data Center",
+      "operator": "Telkom Kenya",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.28,
+      "longitude": 36.81,
+      "status": "operational",
+      "ownership_type": "local",
+      "capacity": {
+        "power_mw": 3.5
+      },
+      "year_established": 2012,
+      "sources": [
+        {
+          "url": "https://www.telkom.co.ke",
+          "name": "Telkom Kenya Official"
+        }
+      ]
+    },
+    {
+      "name": "Bandwidth and Cloud Services (BCS) Data Center",
+      "operator": "BCS Group",
+      "address": "Westlands, Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.265,
+      "longitude": 36.805,
+      "status": "operational",
+      "ownership_type": "local",
+      "capacity": {
+        "power_mw": 2.5
+      },
+      "year_established": 2015,
+      "sources": [
+        {
+          "url": "https://bcs.co.ke",
+          "name": "BCS Group Official"
+        }
+      ]
+    },
+    {
+      "name": "Google Cloud Kenya (Planned)",
+      "operator": "Google Cloud",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.29,
+      "longitude": 36.825,
+      "status": "planned",
+      "ownership_type": "foreign",
+      "capacity": {
+        "power_mw": 30
+      },
+      "year_established": null,
+      "sources": [
+        {
+          "url": "https://cloud.google.com/infrastructure/regions",
+          "name": "Google Cloud Regions"
+        }
+      ]
+    },
+    {
+      "name": "Africa Data Centres Mombasa",
+      "operator": "Africa Data Centres",
+      "address": "Mombasa",
+      "city": "Mombasa",
+      "country": "Kenya",
+      "latitude": -4.0435,
+      "longitude": 39.6682,
+      "status": "under-construction",
+      "ownership_type": "foreign",
+      "capacity": {
+        "power_mw": 8
+      },
+      "year_established": null,
+      "sources": [
+        {
+          "url": "https://www.africadatacentres.com",
+          "name": "Africa Data Centres Official"
+        }
+      ]
+    },
+    {
+      "name": "SEACOM Kenya Data Center",
+      "operator": "SEACOM",
+      "address": "Mombasa Road, Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.318,
+      "longitude": 36.884,
+      "status": "operational",
+      "ownership_type": "foreign",
+      "capacity": {
+        "power_mw": 5
+      },
+      "year_established": 2014,
+      "sources": [
+        {
+          "url": "https://www.seacom.com",
+          "name": "SEACOM Official"
+        }
+      ]
+    },
+    {
+      "name": "Jamii Telecommunications Data Center",
+      "operator": "Jamii Telkom",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.275,
+      "longitude": 36.81,
+      "status": "operational",
+      "ownership_type": "joint-venture",
+      "capacity": {
+        "power_mw": 3
+      },
+      "year_established": 2013,
+      "sources": [
+        {
+          "url": "https://www.jamii.africa",
+          "name": "Jamii Telkom Official"
+        }
+      ]
+    },
+    {
+      "name": "Raxio Data Center Nairobi",
+      "operator": "Raxio Group",
+      "address": "Karen, Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.3197,
+      "longitude": 36.7081,
+      "status": "operational",
+      "ownership_type": "foreign",
+      "capacity": {
+        "power_mw": 5
+      },
+      "year_established": 2023,
+      "sources": [
+        {
+          "url": "https://raxiogroup.com",
+          "name": "Raxio Group Official"
+        }
+      ]
+    },
+    {
+      "name": "MainOne MDXi Data Center Nairobi",
+      "operator": "MainOne (Equinix)",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.292,
+      "longitude": 36.822,
+      "status": "operational",
+      "ownership_type": "foreign",
+      "capacity": {
+        "power_mw": 7
+      },
+      "year_established": 2020,
+      "sources": [
+        {
+          "url": "https://www.mainone.net",
+          "name": "MainOne Official"
+        }
+      ]
+    },
+    {
+      "name": "CSquared Fibre Data Center",
+      "operator": "CSquared",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.285,
+      "longitude": 36.815,
+      "status": "operational",
+      "ownership_type": "joint-venture",
+      "capacity": {
+        "power_mw": 4
+      },
+      "year_established": 2021,
+      "sources": [
+        {
+          "url": "https://www.csquared.com",
+          "name": "CSquared Official"
+        }
+      ]
+    },
+    {
+      "name": "Poa Internet Data Center",
+      "operator": "Poa Internet",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.27,
+      "longitude": 36.81,
+      "status": "operational",
+      "ownership_type": "local",
+      "capacity": {
+        "power_mw": 1.5
+      },
+      "year_established": 2016,
+      "sources": [
+        {
+          "url": "https://www.poainternet.com",
+          "name": "Poa Internet Official"
+        }
+      ]
+    },
+    {
+      "name": "Mawingu Networks Edge DC",
+      "operator": "Mawingu Networks",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.275,
+      "longitude": 36.815,
+      "status": "operational",
+      "ownership_type": "local",
+      "capacity": {
+        "power_mw": 1
+      },
+      "year_established": 2018,
+      "sources": [
+        {
+          "url": "https://www.mawingu.com",
+          "name": "Mawingu Networks Official"
+        }
+      ]
+    },
+    {
+      "name": "Tespok Data Center",
+      "operator": "TESPOK (Internet Service Providers)",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.268,
+      "longitude": 36.808,
+      "status": "operational",
+      "ownership_type": "joint-venture",
+      "capacity": {
+        "power_mw": 2
+      },
+      "year_established": 2014,
+      "sources": [
+        {
+          "url": "https://www.tespok.co.ke",
+          "name": "TESPOK Official"
+        }
+      ]
+    },
+    {
+      "name": "Airtel Kenya Data Center",
+      "operator": "Airtel Networks Kenya",
+      "address": "Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.285,
+      "longitude": 36.82,
+      "status": "operational",
+      "ownership_type": "foreign",
+      "capacity": {
+        "power_mw": 3.5
+      },
+      "year_established": 2015,
+      "sources": [
+        {
+          "url": "https://www.airtel.africa",
+          "name": "Airtel Africa Official"
+        }
+      ]
+    },
+    {
+      "name": "East African Marine Systems (TEAMS) Data Center",
+      "operator": "TEAMS Cable",
+      "address": "Mombasa",
+      "city": "Mombasa",
+      "country": "Kenya",
+      "latitude": -4.05,
+      "longitude": 39.675,
+      "status": "operational",
+      "ownership_type": "joint-venture",
+      "capacity": {
+        "power_mw": 2
+      },
+      "year_established": 2009,
+      "sources": [
+        {
+          "url": "https://www.teamsable.com",
+          "name": "TEAMS Cable Official"
+        }
+      ]
+    },
+    {
+      "name": "Servernah AI Factory at iXAfrica NBOX1",
+      "operator": "Atlancis Technologies (Servernah Cloud) / Everse Technology / iXAfrica",
+      "address": "iXAfrica NBOX1 Campus, Mombasa Road, Nairobi",
+      "city": "Nairobi",
+      "country": "Kenya",
+      "latitude": -1.3205,
+      "longitude": 36.8831,
+      "status": "operational",
+      "ownership_type": "joint-venture",
+      "capacity": {},
+      "year_established": 2025,
+      "sources": [
+        {
+          "url": "https://www.citizen.digital/article/kenya-unveils-regions-first-gpu-powered-ai-infrastructure-n372958",
+          "name": "Citizen Digital - Kenya GPU AI Infrastructure Launch"
+        },
+        {
+          "url": "https://www.ixafrica.com",
+          "name": "iXAfrica Official - NBOX1 Campus"
+        }
+      ]
+    }
+  ]
+}
