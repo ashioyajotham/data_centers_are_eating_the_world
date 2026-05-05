@@ -6,10 +6,14 @@ Tier A (Kenya curated JSON / manual fallback): upserts verified rows directly.
 Tier B/C (web/OSM harvesters): inserts ingestion_candidates for admin review only.
 """
 
+import os
 import sys
 import time
 import argparse
+import requests
 from datetime import datetime
+
+from source_link_enricher import enrich_facility_sources
 from scrapers.datacentermap_scraper import DataCenterMapScraper
 from scrapers.datacenterscom_scraper import DataCentersComScraper
 from scrapers.osm_kenya_scraper import OsmKenyaScraper
@@ -39,6 +43,11 @@ def main():
                         help='Only run news monitor (no database updates)')
     parser.add_argument('--include-news', action='store_true',
                         help='Include news monitor in main pipeline')
+    parser.add_argument(
+        '--no-fetch-source-pages',
+        action='store_true',
+        help='Skip HTTP requests for curated sources (use JSON URLs/names as-is; faster/offline)',
+    )
     args = parser.parse_args()
 
     if args.news_only:
@@ -92,6 +101,20 @@ def main():
 
         geocoded_curated = _run_geocode(geocoder, curated)
         print(f"   Geocoded curated: {len(geocoded_curated)}")
+
+        skip_source_fetch = args.no_fetch_source_pages or os.getenv(
+            "SKIP_SOURCE_PAGE_FETCH", ""
+        ).lower() in ("1", "true", "yes")
+        if not skip_source_fetch:
+            print("   Fetching curated source pages (redirects + titles)...")
+            src_session = requests.Session()
+            src_session.headers.update(
+                {"User-Agent": os.getenv("USER_AGENT", "Mozilla/5.0")}
+            )
+            for item in geocoded_curated:
+                enrich_facility_sources(src_session, item)
+        else:
+            print("   Skipping curated source page fetch (--no-fetch-source-pages or SKIP_SOURCE_PAGE_FETCH)")
 
         for item in geocoded_curated:
             try:
